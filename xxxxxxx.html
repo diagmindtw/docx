@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="zh-tw">
+<!--TODO:
+1. [css] right menu, able scroll
+2. [css] right menu, left meun, @ viewport width < 1200px, hide, otherwise show
+3. 標題應該要塞回去
+-->
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DOCX Preview</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.5.0/semantic.min.css"
+    integrity="sha512-KXol4x3sVoO+8ZsWPFI/r5KBVB/ssCGB5tsv2nVOKwLg33wTFP3fmnXa47FdSVIshVTgsYk/1734xSk9aFIa4A=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.5.0/components/rail.min.css"
+    integrity="sha512-5otZXyOy1WoHVUtIkCWTouUsd4FATLQxdn0iNNhwdi+Fsrfr2mZZf0nf8YyYJhhHQcHVhPsbCY3TvqfrmxURwQ=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <script src="https://unpkg.com/jszip/dist/jszip.min.js"></script>
+  <script src="https://unpkg.com/docx-preview/dist/docx-preview.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.dataTables.min.css"
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.5.0/components/table.min.css"
+    integrity="sha512-LO7R36eoQTR8mctOTFrAUUGCBiqbouo0mzi5dicyVrW76ECJSI4leeTh3PIX4Hp+09++NA3TVFPRg/0C7viORA=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <style>
+    .full-page-loader {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(255, 255, 255, 0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+
+    .dt-container {
+    background-color: #F3F3E8;
+    /*這個寬度從.docx來的 595.3*0.96*/
+    width: 571.488pt;
+    border-radius: 10px; 
+    padding-top: 1vh;
+    padding-right: 1vw;
+    padding-bottom: 1vh;
+    padding-left: 1vw;
+    margin-top: 1vh;
+    /*margin-right: 1vw;*/
+    margin-bottom: 1vh;
+    /*margin-left: 1vw;*/
+    position: relative;
+    left: -120px;
+    
+}
+
+    /* <weight>: Use a value from 100 to 900
+       <uniquifier>: Use a unique and descriptive class name*/
+    .noto-sans-300 {
+      font-family: "Noto Sans", sans-serif;
+      font-optical-sizing: auto;
+      font-weight: 300;
+      font-style: normal;
+      font-variation-settings:
+        "wdth" 100;
+    }
+  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@100..900&family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap"
+    rel="stylesheet">
+</head>
+
+<body>
+  <script>var docxready = false;</script>
+  <div id="loader" class="ui active inverted dimmer full-page-loader">
+    <div class="ui large text loader">Loading</div>
+  </div>
+  <div id="container" style="display: none;"></div>
+  <div id="myFoot" class="ui  vertical footer segment" style="display: none;">
+    <div class="ui center aligned container">
+      <div class="ui stackable grid">
+        <div class="two wide column"></div>
+        <div class="four wide column">
+          <h4 class="ui header">Info</h4>
+          <!--問客戶這裡要放啥-->
+          <div class="ui link list">
+            <a class="item" href="#" target="_blank" id="updd">更新日期</a>
+            <a class="item" href="#" target="_blank" id="updt">更新時間</a>
+          </div>
+        </div>
+        <div class="five wide right floated column">
+          <h4 class="ui header">Help Preserve This Project</h4>
+          <p> Support for the continued development of Semantic UI comes directly from the community.</p>
+          <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+            <input type="hidden" name="cmd" value="_s-xclick">
+            <input type="hidden" name="hosted_button_id" value="7ZAF2Q8DBZAQL">
+            <button type="submit" class="ui large teal button">Donate Today</button>
+          </form>
+        </div>
+        <div class="two wide column">
+
+        </div>
+      </div>
+      <div class="ui section divider"></div>
+      <img src="/images/logo.png" class="ui centered mini image">
+      <div class="ui horizontal small divided link list">
+        <a class="item" href="http://semantic-ui.mit-license.org/" target="_blank">Free &amp; Open Source (MIT)</a>
+      </div>
+    </div>
+  </div>
+  <script>
+    fetch('./a.docx')
+      .then(response => response.blob())
+      .then(blob => {
+        var docData = blob;
+        docx.renderAsync(docData, document.getElementById("container"))
+          .then(x => {
+            console.log("docx: finished");
+            const docxElement = document.getElementsByClassName('docx')[0];
+            const elements = Array.from(docxElement.querySelectorAll('*'));
+            var rightMenu = '';
+            const pattern1 = /\d{4}年\d{1,2}月\d{1,2}日\s*[上下]午\s*\d{1,2}:\d{1,2}/;
+            const pattern2 = /\b[^\(\)（）:\d\s]+,\s[^\(\)（）:\d\s]+\s\d{1,2},\s\d{4}\s*\d{1,2}:\d{1,2}\s[AP]M\b/;
+            var hashIDX = 1;
+            for (let i = 1; i < elements.length; i++) {
+              const el = elements[i];
+
+              const nextSiblingText = el.nextSibling?.innerText || ''; // Handle missing nextSibling safely
+              const line2_push = el.innerText + nextSiblingText;
+
+              if (pattern1.test(line2_push)) {
+                rightMenu += `<a class="item" href="#${hashIDX + 1}" onclick="if (event.target.tagName === 'A') {event.preventDefault(); window.location.href = event.target.href;  window.location.reload();  }">${el.previousSibling.innerText}</a>`;
+                hashIDX++;
+                el.style.display = 'none';
+                el.nextSibling.style.display = 'none';
+                if (hashIDX === currentStage3index) {
+                  const h1 = document.createElement('h1');
+                  h1.textContent = el.previousSibling.innerText;
+
+                  // Set the styles for the h1 element
+                  h1.style.backgroundColor = '#DAE5F4';
+                  h1.style.position = 'fixed';
+                  h1.style.top = '0';
+                  h1.style.left = '50%';
+                  h1.style.transform = 'translateX(-50%)';
+                  h1.style.whiteSpace = 'nowrap';
+                  h1.style.padding = '2vh 2vw';
+                  h1.style.borderRadius = '10px';
+                  h1.style.marginBlockStart = '0';
+                  h1.style.zIndex = '9998';
+                  document.body.appendChild(h1);
+                  document.getElementById('updd').innerText = el.innerText;
+                  document.getElementById('updt').innerText = nextSiblingText;
+                }
+              }
+
+              if (pattern2.test(line2_push)) {
+                rightMenu += `<a class="item" href="#${hashIDX + 1}" onclick="if (event.target.tagName === 'A') {event.preventDefault(); window.location.href = event.target.href;  window.location.reload();  }">${el.previousSibling.innerText}</a>`;
+                hashIDX++;
+                el.style.display = 'none';
+                el.nextSibling.style.display = 'none';
+                if (hashIDX === currentStage3index) {
+                  const h1 = document.createElement('h1');
+                  h1.textContent = el.previousSibling.innerText;
+
+                  // Set the styles for the h1 element
+                  h1.style.backgroundColor = '#DAE5F4';
+                  h1.style.position = 'fixed';
+                  h1.style.top = '0';
+                  h1.style.left = '50%';
+                  h1.style.transform = 'translateX(-50%)';
+                  h1.style.whiteSpace = 'nowrap';
+                  h1.style.padding = '2vh 2vw';
+                  h1.style.borderRadius = '10px';
+                  h1.style.marginBlockStart = '0';
+                  h1.style.zIndex = '9998';
+                  document.body.appendChild(h1);
+                  document.getElementById('updd').innerText = el.innerText;
+                  document.getElementById('updt').innerText = nextSiblingText;
+                }
+              }
+
+              if (hashIDX !== currentStage3index || (pattern1.test((el.nextSibling?.innerText || '') + (el.nextSibling?.nextSibling?.innerText || '')) || pattern2.test((el.nextSibling?.innerText || '') + (el.nextSibling?.nextSibling?.innerText || '')))) {
+                el.style.display = 'none';
+              }
+
+            }
+            document.getElementsByClassName('docx-wrapper')[0].classList.add('ui');
+            document.getElementsByClassName('docx-wrapper')[0].classList.add('segment');
+            document.getElementsByClassName('docx-wrapper')[0].innerHTML = `
+ <div class="ui left fixed vertical menu">
+  <div class="item">
+    <img class="ui mini image" src="/images/logo.png">
+  </div>
+  <a class="item">Features</a>
+  <a class="item">Testimonials</a>
+  <a class="item">Sign-in</a>
+</div>
+<div class="ui right fixed vertical menu">
+  <div class="item">
+    <img class="ui mini image" src="https://upload.wikimedia.org/wikipedia/en/a/a9/Example.jpg">
+  </div>
+  ${rightMenu}
+</div>
+<div class="ui top fixed menu">
+  <div class="header item">Brand</div>
+  <a class="active item">Link</a>
+  <a class="item">Link</a>
+  <div class="ui dropdown item" tabindex="0">
+    Dropdown
+    <i class="dropdown icon"></i>
+    <div class="menu" tabindex="-1">
+      <div class="item">Action</div>
+      <div class="item">Another Action</div>
+      <div class="item">Something else here</div>
+      <div class="divider"></div>
+      <div class="item">Separated Link</div>
+      <div class="divider"></div>
+      <div class="item">One more separated link</div>
+    </div>
+  </div>
+  <div class="right menu">
+    <div class="item">
+      <div class="ui action left icon input">
+        <i class="search icon"></i>
+        <input type="text" placeholder="Search">
+        <button class="ui button">Submit</button>
+      </div>
+    </div>
+    <a class="item">Link</a>
+  </div>
+</div>
+<div class="ui bottom fixed menu">
+  <div class="item">
+    <img src="/images/logo.png">
+  </div>
+  <a class="item">Features</a>
+  <a class="item">Testimonials</a>
+  <a class="item">Sign-in</a>
+</div>
+`+ hardfont(document.getElementsByClassName('docx-wrapper')[0].innerHTML);
+            docxready = true;
+          });
+      })
+      .catch(error => console.error('Error fetching the DOCX file:', error));
+  </script>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+    integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.5.0/semantic.min.js"
+    integrity="sha512-Xo0Jh8MsOn72LGV8kU5LsclG7SUzJsWGhXbWcYs2MAmChkQzwiW/yTQwdJ8w6UA9C6EVG18GHb/TrYpYCjyAQw=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdn.datatables.net/2.2.2/js/dataTables.min.js" crossorigin="anonymous"
+    referrerpolicy="no-referrer"></script>
+
+  <script>
+    var currentStage3index = -1;
+    $(document).ready(function () {
+      currentStage3index = parseInt(window.location.hash.substring(1));
+      if (isNaN(currentStage3index)) {
+        currentStage3index = 1;
+      }
+    });
+    function checkVariable() {
+      if (docxready) {
+        document.getElementById('loader').style.display = 'none';
+        document.getElementById('container').style.display = 'block';
+        document.getElementById('myFoot').style.display = 'block';
+
+        //!important! function card
+        const docxElement = document.getElementsByClassName('docx')[0].children[0];
+        if (docxElement) {
+          const paragraphs = Array.from(docxElement.children);
+          const margins = paragraphs.map(p => {
+            if (p.style.display === 'none') {
+              return 9999;
+            } else {
+              return parseFloat(p.style.marginLeft) || 0; // Use hard-coded margin or default to 0
+            }
+          });
+          //console.log(margins);
+
+          // Find the third smallest unique margin value
+          const uniqueMargins = [...new Set(margins)].sort((a, b) => a - b);
+          const targetTab = uniqueMargins[1];
+          //console.log(targetTab);
+
+          let isOpen = false;
+          let currentDiv = null;
+
+          paragraphs.forEach(p => {
+            if ((parseFloat(p.style.marginLeft) || 0) === targetTab) {
+              if (p.style.display !== 'none') {
+                if (!isOpen) {
+                  // Open a new segment
+                  currentDiv = document.createElement('div');
+                  currentDiv.className = 'ui segment';
+                  p.parentNode.insertBefore(currentDiv, p);
+                  isOpen = true;
+                  currentDiv.appendChild(p);
+                } else {
+                  isOpen = false;
+                  currentDiv = null;
+                  currentDiv = document.createElement('div');
+                  currentDiv.className = 'ui segment';
+                  p.parentNode.insertBefore(currentDiv, p);
+                  isOpen = true;
+                  currentDiv.appendChild(p);
+                }
+              } else {
+                isOpen = false;
+                currentDiv = null;
+              }
+            } else {
+              if (isOpen) {
+                currentDiv.appendChild(p);
+              }
+            }
+          });
+        } else {
+          console.log('No element with class "docx" found.');
+        }
+
+        //!important! give me come color
+        const docxElement_main = document.getElementsByClassName('docx')[0];
+        docxElement_main.style.backgroundColor = '#f2f2f2';
+        docxElement.style.backgroundColor = '#f2f2f2';
+        document.getElementsByClassName('docx-wrapper')[0].style.backgroundColor = '#bfbfbf';
+
+        //table
+        function upgradeTables() {
+          document.querySelectorAll("table").forEach(table => {
+            if (getComputedStyle(table).display === "none") return; // Skip hidden tables
+            if (table.querySelector("thead")) return; // Skip if already has thead
+
+            let tbody = table.querySelector("tbody");
+            if (!tbody) return; // Ensure tbody exists
+
+            let firstRow = tbody.querySelector("tr");
+            if (!firstRow) return; // Ensure there's at least one row
+
+            let thead = document.createElement("thead");
+            thead.appendChild(firstRow); // Move the first row to thead
+            table.insertBefore(thead, tbody); // Insert thead before tbody
+          });
+          document.querySelectorAll("td").forEach(r => {
+            //remode hard coded style
+            r.style = '';
+          });
+        }
+        upgradeTables();
+        DataTable.ext.errMode = function (s, tn, msg) {
+          console.log(msg, tn);
+        };
+        // Get all table elements within the 'docx' element
+        let tables = docxElement.getElementsByTagName('table');
+
+        // Function to generate a random string
+        function generateRandomString(length) {
+          let characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+          let result = '';
+          for (let i = 0; i < length; i++) {
+            result += characters.charAt(Math.floor(Math.random() * characters.length));
+          }
+          return result;
+        }
+
+        // Array to store the generated IDs
+        let tableIds = [];
+
+        // Assign a random ID to each table and store the ID in the array
+        for (let i = 0; i < tables.length; i++) {
+          let randomId = generateRandomString(10);
+          tables[i].id = randomId;
+          tables[i].classList.add('ui', 'celled', 'table', 'striped');
+          tableIds.push(randomId);
+        }
+
+        // Initialize a DataTable for each table using the generated IDs
+        for (let i = 0; i < tableIds.length; i++) {
+          let queryString = `#${tableIds[i]}`;
+          try {
+            let dataTable = new DataTable(queryString);
+          } catch (error) {
+            console.log(error);
+          }
+        }
+
+      } else {
+        setTimeout(checkVariable, 100);
+      }
+    }
+
+    // Start checking the variable
+    checkVariable();
+
+
+  </script>
+  <script>
+    function hardfont(x) {
+      if (false) { return x; } else {
+        const fontFamilyRegex = /font-family\s*:\s*([^;]+);/gi;
+
+        return x.replace(fontFamilyRegex, (match, p1) => {
+          return `font-family: 'Noto Sans', ${p1}, sans-serif;`;
+        });
+      }
+    }
+  </script>
+
+
+</body>
+
+</html>
