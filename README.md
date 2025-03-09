@@ -1,5 +1,7 @@
 # docx
 
+基本上magic都發生在gh-pages
+
 ## 說明文件
 
 ![image](https://github.com/user-attachments/assets/f988b09a-da72-4a3c-babd-496f63d5dfc4)
