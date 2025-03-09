@@ -2,27 +2,27 @@
   "categories": [
     {
       "name": "警衛行政事項",
-      "url": "/1.html"
+      "url": "/sec/1.html"
     },
     {
       "name": "內科",
-      "url": "/2.html"
+      "url": "/sec/2.html"
     },
     {
       "name": "外科",
-      "url": "/3.html"
+      "url": "/sec/3.html"
     },
     {
       "name": "兒科",
-      "url": "/4.html"
+      "url": "/sec/4.html"
     },
     {
       "name": "婦產科",
-      "url": "/5.html"
+      "url": "/sec/5.html"
     },
     {
       "name": "其他科",
-      "url": "/6.html"
+      "url": "/sec/6.html"
     }
   ]
 }
