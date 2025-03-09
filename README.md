@@ -28,3 +28,9 @@
 ## 說明影片
 
 [google drive (dir/mov)](https://drive.google.com/drive/folders/1UrZM1ZYRrC7trCpXY3YHWB7OGEFmRHWz?usp=sharing)
+
+
+## 更新了master.html後要
+
+- 執行py檔
+- 上傳sec資料夾到gh-pages
