@@ -408,7 +408,7 @@ ${leftMenu}
     }
     async function fetchCategories() {
   try {
-    const response = await fetch('l1toc.json');
+    const response = await fetch('/l1toc.json');
     if (!response.ok) {
       throw new Error('Network response was not ok');
     }
