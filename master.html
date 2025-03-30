@@ -139,7 +139,7 @@
                 if (hashIDX === currentStage3index) {
                   const h1 = document.createElement('h1');
                   h1.textContent = el.previousSibling.innerText;
-
+                  h1.id = "thePageTitle";
                   // Set the styles for the h1 element
                   h1.style.backgroundColor = '#DAE5F4';
                   h1.style.position = 'fixed';
@@ -165,7 +165,7 @@
                 if (hashIDX === currentStage3index) {
                   const h1 = document.createElement('h1');
                   h1.textContent = el.previousSibling.innerText;
-
+h1.id = "thePageTitle";
                   // Set the styles for the h1 element
                   h1.style.backgroundColor = '#DAE5F4';
                   h1.style.position = 'fixed';
@@ -282,15 +282,35 @@ ${leftMenu}
 
           // Find the third smallest unique margin value
           const uniqueMargins = [...new Set(margins)].sort((a, b) => a - b);
+          var JZDobj={id:0,name:document.getElementById('thePageTitle').innerText,UMary:[]};
+          uniqueMargins.forEach((margin, index) => {
+            JZDobj.UMary.push({ id: index, Mval: margin, domARY:[] });
+          });
           const targetTab = uniqueMargins[1];
           //console.log(targetTab);
 
           let isOpen = false;
           let currentDiv = null;
 
+          var JZDid=0;
+          var prevJZDid=0;
           paragraphs.forEach(p => {
             if ((parseFloat(p.style.marginLeft) || 0) === targetTab) {
               if (p.style.display !== 'none') {
+JZDid++;
+                if(parseFloat(p.style.marginLeft)){
+                  JZDobj.UMary.forEach((item, index) => {
+                  if (Masth.abs(item.Mval - parseFloat(p.style.marginLeft)) < 1) {
+                    JZDobj.UMary[index].domARY.push({id:JZDid,innerText:p.innerText,prevID:prevJZDid});
+                  }
+                });
+              }else{
+                //JZDobj.UMary last,  .domARY push {innertext id prevID}
+                JZDobj.UMary[JZDobj.UMary.length-1].domARY.push({id:JZDid,innerText:p.innerText,prevID:prevJZDid});
+              }
+                prevJZDid=JZDid;
+                
+
                 if (!isOpen) {
                   // Open a new segment
                   currentDiv = document.createElement('div');
