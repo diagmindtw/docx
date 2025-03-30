@@ -277,74 +277,182 @@ ${leftMenu}
             if (p.style.display === 'none') {
               return 9999;
             } else {
+              if (parseFloat(p.style.marginLeft)) {
+                p.onml=parseFloat(p.style.marginLeft);
+              }
               return parseFloat(p.style.marginLeft) || 0; // Use hard-coded margin or default to 0
             }
           });
           //console.log(margins);
 
           // Find the third smallest unique margin value
-          const uniqueMargins = [...new Set(margins)].sort((a, b) => a - b);
-          var JZDobj = { id: 0, name: document.getElementById('thePageTitle').innerText, UMary: [] };
+          const uniqueMargins = [...new Set(margins)].sort((a, b) => b - a);//a - b);
+          /*var JZDobj = { level: 0, name: document.getElementById('thePageTitle').innerText, UMary: [] };
           uniqueMargins.forEach((margin, index) => {
-            JZDobj.UMary.push({ id: index, Mval: margin, domARY: [] });
-          });
-          const targetTab = uniqueMargins[1];
-          //console.log(targetTab);
+            JZDobj.UMary.push({ level: index, Mval: margin, domARY: [] });
+          });*/
 
-          let isOpen = false;
-          let currentDiv = null;
+          uniqueMargins.forEach((m0o0, i0o0) => {
+            console.log(`執行層${m0o0}`);
+            if (m0o0 !== 0) {
+              const targetTab = uniqueMargins[i0o0];//1];
+              //console.log(targetTab);
+              //console.log(targetTab);
 
-          var JZDid = 0;
-          var prevJZDid = 0;
-          paragraphs.forEach(p => {
+              let isOpen = false;
+              let currentDiv = null;
 
-            if (p.style.display !== 'none') {
-              JZDid++;
-              if (parseFloat(p.style.marginLeft)) {
-                JZDobj.UMary.forEach((item, index) => {
-                  if (Math.abs(item.Mval - parseFloat(p.style.marginLeft)) < 1) {
-                    JZDobj.UMary[index].domARY.push({ id: JZDid, innerText: p.innerText, prevID: prevJZDid });
+              //var JZDid = 0;
+              //var prevJZDid = 0;
+              Array.from(document.getElementsByClassName('docx')[0].children[0].children).forEach(p => {
+
+                if (p.innerText &&//p.style.display !== 'none' && 
+                  p.innerText.trim() !== "" &&
+                  p.innerText !== "\n" &&
+                  p.innerText !== "\r\n" &&
+                  p.innerText !== "\r" &&
+                  p.innerText !== "\t" &&
+                  !/^[\u3000\u00A0]+$/.test(p.innerText)
+                ) {
+
+                  function Tt(int2or3) {
+                    if (p.onml && parseFloat(p.onml)) {
+
+                      if ((Math.abs(parseFloat(p.onml) - targetTab) < 1)) {
+                        return 't';
+                      } else if (parseFloat(p.onml) > targetTab) {
+                        if (int2or3 === 2) {
+                          return 'f';
+                        } else if (int2or3 === 3) {
+                          return 's';
+                        } else { console.error('must be 2 or 3'); }
+                      } else {
+                        return 'f';
+                      }
+
+                    } else { return 'f'; }
                   }
-                });
-              } else {
-                //JZDobj.UMary last,  .domARY push {innertext id prevID}
-                JZDobj.UMary[JZDobj.UMary.length - 1].domARY.push({ id: JZDid, innerText: p.innerText, prevID: prevJZDid });
-              }
-              prevJZDid = JZDid;
-            }
 
-            if ((parseFloat(p.style.marginLeft) || 0) === targetTab) {
-              if (p.style.display !== 'none') {
-                if (!isOpen) {
-                  // Open a new segment
-                  currentDiv = document.createElement('div');
-                  currentDiv.className = 'ui segment';
-                  p.parentNode.insertBefore(currentDiv, p);
-                  isOpen = true;
-                  currentDiv.appendChild(p);
-                } else {
-                  isOpen = false;
-                  currentDiv = null;
-                  currentDiv = document.createElement('div');
-                  currentDiv.className = 'ui segment';
-                  p.parentNode.insertBefore(currentDiv, p);
-                  isOpen = true;
-                  currentDiv.appendChild(p);
+                  if (isOpen) {
+                    //console.log('狀態:已開啟');
+                    if (Tt(3) === 't') {
+                      //console.log(`%c 狀態:符合目標${p.innerText}`, 'background: #222; color: #bada55');
+                      //另存新檔
+                      isOpen = false;
+                      currentDiv = null;
+                      currentDiv = document.createElement('div');
+                      currentDiv.onml = m0o0;
+                      currentDiv.className = `ui segment level-${uniqueMargins.length - i0o0} debugMG-${targetTab}`;
+                      p.parentNode.insertBefore(currentDiv, p);
+                      isOpen = true;
+                      currentDiv.appendChild(p);
+                      p.onml=-1;
+                    } else if (Tt(3) === 'f') {
+                      //console.log('狀態:不符合目標');
+                      //存檔關閉
+                      if (p.style.display === 'none') {
+                        //console.log('存檔關閉:1');
+                        isOpen = false;
+                        currentDiv = null;
+                      } else if (!parseFloat(p.onml)) {
+                        //寫入
+                        //console.log('存檔關閉:2');
+                        currentDiv.appendChild(p);
+                        p.onml=-1;
+                      }else if (parseFloat(p.onml)===-1) {
+                        //別動
+                      } else {
+                        //console.log('存檔關閉:3');
+                        //這裡邏輯糊塗了
+                        //currentDiv.appendChild(p);
+                        isOpen = false;
+                        currentDiv = null;
+                      }
+                    } else if (Tt(3) === 's') {
+                      //console.log('%c 狀態:子目標', 'background: #222; color: #bada55');
+                      //寫入
+                      currentDiv.appendChild(p);
+                      p.onml=-1;
+                    } else { console.error('must be t or f or s'); }
+                  } else {
+                    //console.log('狀態:未開啟');
+                    //開新檔案
+                    if (Tt(2) === 't') {
+                      //console.log(`%c 狀態:符合目標${p.innerText}\n level-${uniqueMargins.length - i0o0} debugMG-${targetTab}`, 'background: #222; color: #bada55');
+                      currentDiv = document.createElement('div');
+                      currentDiv.onml = m0o0;
+                      currentDiv.className = `ui segment level-${uniqueMargins.length - i0o0} debugMG-${targetTab}`;
+                      p.parentNode.insertBefore(currentDiv, p);
+                      isOpen = true;
+                      currentDiv.appendChild(p);
+                      p.onml=-1;
+                    } else if (Tt(2) === 'f') {
+                      //console.log('狀態:不符合目標');
+                      //維持狀態
+                    } else { console.error('must be t or f'); }
+                  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+                  /*
+                  JZDid++;
+                  if (parseFloat(p.style.marginLeft)) {
+                    JZDobj.UMary.forEach((item, index) => {
+                      if (Math.abs(item.Mval - parseFloat(p.style.marginLeft)) < 1) {
+                        JZDobj.UMary[index].domARY.push({ id: JZDid, innerText: p.innerHTML, prevID: prevJZDid });
+                      }
+                    });
+                  } else {
+                    //JZDobj.UMary last,  .domARY push {innertext id prevID}
+                    JZDobj.UMary[JZDobj.UMary.length - 1].domARY.push({ id: JZDid, innerText: p.innerHTML, prevID: prevJZDid });
+                  }
+                  prevJZDid = JZDid;
+                }*/
+
+                  // if (parseFloat(p.style.marginLeft) && parseFloat(p.style.marginLeft) && (Math.abs(parseFloat(p.style.marginLeft) - targetTab) < 1||parseFloat(p.style.marginLeft) < targetTab)) {
+                  //   if (p.style.display !== 'none'&&parseFloat(p.style.marginLeft) > targetTab) {
+                  //     p.classList.add(`debug-${uniqueMargins.length - i0o0}-${targetTab}`);
+                  // if (!isOpen) {
+                  //   // Open a new segment
+                  //   currentDiv = document.createElement('div');
+                  //   currentDiv.className = `ui segment level-${uniqueMargins.length - i0o0}-${targetTab}`;
+                  //   p.parentNode.insertBefore(currentDiv, p);
+                  //   isOpen = true;
+                  //   currentDiv.appendChild(p);
+                  // } else {
+                  //   isOpen = false;
+                  //   currentDiv = null;
+                  //   currentDiv = document.createElement('div');
+                  //   currentDiv.className = `ui segment level-${uniqueMargins.length - i0o0}-${targetTab}`;
+                  //   p.parentNode.insertBefore(currentDiv, p);
+                  //   isOpen = true;
+                  //   currentDiv.appendChild(p);
+                  // }
+                  // } else {
+                  // isOpen = false;
+                  // currentDiv = null;
+                  //   }
+                  // } else {
+                  // if (isOpen) {
+                  //   currentDiv.appendChild(p);
+                  // }
+                  // }
                 }
-              } else {
-                isOpen = false;
-                currentDiv = null;
-              }
-            } else {
-              if (isOpen) {
-                currentDiv.appendChild(p);
-              }
+              });
             }
+            //console.log(JZDobj);
+            //console.log(paragraphs);
           });
-
-          console.log(JZDobj);
-          console.log(paragraphs);
-
         } else {
           console.log('No element with class "docx" found.');
         }
