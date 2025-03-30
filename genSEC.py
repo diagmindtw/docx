@@ -34,7 +34,7 @@ try:
     for i, item in enumerate(l1toc_content["categories"], 1):
         vartmp = item.get("name", "")
         print(f"Processing: {vartmp}")
-        modified_content = content.replace("./example.docx", f"/docxView/{i}.docx")#f"https://diagmindtw.com/rawdocx/docxView/{vartmp}.docx")
+        modified_content = content.replace("./example.docx", f"/docxView/{vartmp}.docx")
         output_path = f"./sec/{i}.html"
         
         with open(output_path, "w", encoding="utf-8") as file:
