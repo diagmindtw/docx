@@ -12,6 +12,11 @@ os.makedirs("./sec", exist_ok=True)
 with open("master.html", "r", encoding="utf-8") as file:
     content = file.read()
 
+# Read existing l1toc.json file
+with open("l1toc.json", "r", encoding="utf-8") as toc_file:
+    l1toc_content = json.load(toc_file)
+    print("Loaded existing l1toc.json file")
+
 # Configure retry strategy
 retry_strategy = Retry(
     total=5,
@@ -24,34 +29,10 @@ retry_strategy = Retry(
 session = requests.Session()
 session.mount("https://", HTTPAdapter(max_retries=retry_strategy))
 
-# Fetch JSON data from the URL
+# Generate HTML files based on entries in l1toc.json
 try:
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-        "Accept": "application/json",
-        "Referer": "https://diagmindtw.com/"
-    }
-    
-    print("Attempting to fetch data from server...")
-    response = session.get(
-        "https://diagmindtw.com/48001.php/vitepressOUTPUT/left.json", 
-        headers=headers, 
-        timeout=30
-    )
-    response.raise_for_status()
-    json_data = response.json()
-    
-    # Filter out items containing "籌備行政事項"
-    filtered_items = [item for item in json_data if "籌備行政事項" not in item.get("text", "")]
-    
-    # Prepare l1toc.json content
-    l1toc_content = {
-        "categories": []
-    }
-    
-    # Generate HTML files for filtered items
-    for i, item in enumerate(filtered_items, 1):
-        vartmp = item.get("text", "")
+    for i, item in enumerate(l1toc_content["categories"], 1):
+        vartmp = item.get("name", "")
         print(f"Processing: {vartmp}")
         modified_content = content.replace("./example.docx", f"https://diagmindtw.com/rawdocx/docxView/{vartmp}.docx")
         output_path = f"./sec/{i}.html"
@@ -59,24 +40,7 @@ try:
         with open(output_path, "w", encoding="utf-8") as file:
             file.write(modified_content)
         
-        # Add entry to l1toc.json
-        l1toc_content["categories"].append({
-            "name": vartmp,
-            "url": f"/sec/{i}.html"
-        })
-        
-        print(f"Saved: {output_path} - {item.get('text', '')}")
+        print(f"Saved: {output_path} - {vartmp}")
     
-    # Write l1toc.json file
-    with open("l1toc.json", "w", encoding="utf-8") as toc_file:
-        json.dump(l1toc_content, toc_file, ensure_ascii=False, indent=2)
-    print("Generated l1toc.json file")
-    
-except requests.exceptions.RetryError:
-    print("Error: Maximum retry attempts reached. The server might be blocking requests.")
-except requests.exceptions.Timeout:
-    print("Error: Request timed out. The server might be slow or blocking requests.")
-except requests.exceptions.RequestException as e:
-    print(f"Error fetching data on line {e.__traceback__.tb_lineno}: {e}")
-except json.JSONDecodeError:
-    print("Error: Invalid JSON data received")
+except Exception as e:
+    print(f"Error processing data: {e}")
