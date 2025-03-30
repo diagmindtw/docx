@@ -1,6 +1,10 @@
 {
   "categories": [
     {
+      "name": "禁止訪問",
+      "url": "/sec/1.html","display":"none"
+    },
+    {
       "name": "內科",
       "url": "/sec/2.html"
     },
