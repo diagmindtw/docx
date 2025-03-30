@@ -38,22 +38,22 @@
     }
 
     .dt-container {
-    background-color: #F3F3E8;
-    /*這個寬度從.docx來的 595.3*0.96*/
-    width: 571.488pt;
-    border-radius: 10px; 
-    padding-top: 1vh;
-    padding-right: 1vw;
-    padding-bottom: 1vh;
-    padding-left: 1vw;
-    margin-top: 1vh;
-    /*margin-right: 1vw;*/
-    margin-bottom: 1vh;
-    /*margin-left: 1vw;*/
-    position: relative;
-    left: -120px;
-    
-}
+      background-color: #F3F3E8;
+      /*這個寬度從.docx來的 595.3*0.96*/
+      width: 571.488pt;
+      border-radius: 10px;
+      padding-top: 1vh;
+      padding-right: 1vw;
+      padding-bottom: 1vh;
+      padding-left: 1vw;
+      margin-top: 1vh;
+      /*margin-right: 1vw;*/
+      margin-bottom: 1vh;
+      /*margin-left: 1vw;*/
+      position: relative;
+      left: -120px;
+
+    }
 
     /* <weight>: Use a value from 100 to 900
        <uniquifier>: Use a unique and descriptive class name*/
@@ -165,7 +165,7 @@
                 if (hashIDX === currentStage3index) {
                   const h1 = document.createElement('h1');
                   h1.textContent = el.previousSibling.innerText;
-h1.id = "thePageTitle";
+                  h1.id = "thePageTitle";
                   // Set the styles for the h1 element
                   h1.style.backgroundColor = '#DAE5F4';
                   h1.style.position = 'fixed';
@@ -190,7 +190,8 @@ h1.id = "thePageTitle";
             }
             document.getElementsByClassName('docx-wrapper')[0].classList.add('ui');
             document.getElementsByClassName('docx-wrapper')[0].classList.add('segment');
-            fetchCategories().then(leftMenu=>{ document.getElementsByClassName('docx-wrapper')[0].innerHTML = `
+            fetchCategories().then(leftMenu => {
+              document.getElementsByClassName('docx-wrapper')[0].innerHTML = `
  <div class="ui left fixed vertical menu">
   <div class="item">
     <img class="ui mini image" src="https://upload.wikimedia.org/wikipedia/en/a/a9/Example.jpg">
@@ -240,7 +241,8 @@ ${leftMenu}
   <a class="item">Sign-in</a>
 </div>
 `+ hardfont(document.getElementsByClassName('docx-wrapper')[0].innerHTML);
-            docxready = true;});
+              docxready = true;
+            });
           });
       })
       .catch(error => console.error('Error fetching the DOCX file:', error));
@@ -282,9 +284,9 @@ ${leftMenu}
 
           // Find the third smallest unique margin value
           const uniqueMargins = [...new Set(margins)].sort((a, b) => a - b);
-          var JZDobj={id:0,name:document.getElementById('thePageTitle').innerText,UMary:[]};
+          var JZDobj = { id: 0, name: document.getElementById('thePageTitle').innerText, UMary: [] };
           uniqueMargins.forEach((margin, index) => {
-            JZDobj.UMary.push({ id: index, Mval: margin, domARY:[] });
+            JZDobj.UMary.push({ id: index, Mval: margin, domARY: [] });
           });
           const targetTab = uniqueMargins[1];
           //console.log(targetTab);
@@ -292,25 +294,27 @@ ${leftMenu}
           let isOpen = false;
           let currentDiv = null;
 
-          var JZDid=0;
-          var prevJZDid=0;
+          var JZDid = 0;
+          var prevJZDid = 0;
           paragraphs.forEach(p => {
-            if ((parseFloat(p.style.marginLeft) || 0) === targetTab) {
-              if (p.style.display !== 'none') {
-JZDid++;
-                if(parseFloat(p.style.marginLeft)){
-                  JZDobj.UMary.forEach((item, index) => {
-                  if (Masth.abs(item.Mval - parseFloat(p.style.marginLeft)) < 1) {
-                    JZDobj.UMary[index].domARY.push({id:JZDid,innerText:p.innerText,prevID:prevJZDid});
+
+            if (p.style.display !== 'none') {
+              JZDid++;
+              if (parseFloat(p.style.marginLeft)) {
+                JZDobj.UMary.forEach((item, index) => {
+                  if (Math.abs(item.Mval - parseFloat(p.style.marginLeft)) < 1) {
+                    JZDobj.UMary[index].domARY.push({ id: JZDid, innerText: p.innerText, prevID: prevJZDid });
                   }
                 });
-              }else{
+              } else {
                 //JZDobj.UMary last,  .domARY push {innertext id prevID}
-                JZDobj.UMary[JZDobj.UMary.length-1].domARY.push({id:JZDid,innerText:p.innerText,prevID:prevJZDid});
+                JZDobj.UMary[JZDobj.UMary.length - 1].domARY.push({ id: JZDid, innerText: p.innerText, prevID: prevJZDid });
               }
-                prevJZDid=JZDid;
-                
+              prevJZDid = JZDid;
+            }
 
+            if ((parseFloat(p.style.marginLeft) || 0) === targetTab) {
+              if (p.style.display !== 'none') {
                 if (!isOpen) {
                   // Open a new segment
                   currentDiv = document.createElement('div');
@@ -337,6 +341,10 @@ JZDid++;
               }
             }
           });
+
+          console.log(JZDobj);
+          console.log(paragraphs);
+
         } else {
           console.log('No element with class "docx" found.');
         }
@@ -427,17 +435,17 @@ JZDid++;
       }
     }
     async function fetchCategories() {
-  try {
-    const response = await fetch('/l1toc.json');
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
+      try {
+        const response = await fetch('/l1toc.json');
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        return data.categories.map(category => `<a class="item" href="${category.url}">${category.name}</a>`).join('\n');
+      } catch (error) {
+        console.error('There has been a problem with your fetch operation:', error);
+      }
     }
-    const data = await response.json();
-    return data.categories.map(category => `<a class="item" href="${category.url}">${category.name}</a>`).join('\n');
-  } catch (error) {
-    console.error('There has been a problem with your fetch operation:', error);
-  }
-}
 
   </script>
 
