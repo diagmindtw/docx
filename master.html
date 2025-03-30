@@ -38,22 +38,22 @@
     }
 
     .dt-container {
-    background-color: #F3F3E8;
-    /*這個寬度從.docx來的 595.3*0.96*/
-    width: 571.488pt;
-    border-radius: 10px; 
-    padding-top: 1vh;
-    padding-right: 1vw;
-    padding-bottom: 1vh;
-    padding-left: 1vw;
-    margin-top: 1vh;
-    /*margin-right: 1vw;*/
-    margin-bottom: 1vh;
-    /*margin-left: 1vw;*/
-    position: relative;
-    left: -120px;
-    
-}
+      background-color: #F3F3E8;
+      /*這個寬度從.docx來的 595.3*0.96*/
+      width: 571.488pt;
+      border-radius: 10px;
+      padding-top: 1vh;
+      padding-right: 1vw;
+      padding-bottom: 1vh;
+      padding-left: 1vw;
+      margin-top: 1vh;
+      /*margin-right: 1vw;*/
+      margin-bottom: 1vh;
+      /*margin-left: 1vw;*/
+      position: relative;
+      left: -120px;
+
+    }
 
     /* <weight>: Use a value from 100 to 900
        <uniquifier>: Use a unique and descriptive class name*/
@@ -139,7 +139,7 @@
                 if (hashIDX === currentStage3index) {
                   const h1 = document.createElement('h1');
                   h1.textContent = el.previousSibling.innerText;
-
+                  h1.id = "thePageTitle";
                   // Set the styles for the h1 element
                   h1.style.backgroundColor = '#DAE5F4';
                   h1.style.position = 'fixed';
@@ -165,7 +165,7 @@
                 if (hashIDX === currentStage3index) {
                   const h1 = document.createElement('h1');
                   h1.textContent = el.previousSibling.innerText;
-
+                  h1.id = "thePageTitle";
                   // Set the styles for the h1 element
                   h1.style.backgroundColor = '#DAE5F4';
                   h1.style.position = 'fixed';
@@ -190,7 +190,8 @@
             }
             document.getElementsByClassName('docx-wrapper')[0].classList.add('ui');
             document.getElementsByClassName('docx-wrapper')[0].classList.add('segment');
-            fetchCategories().then(leftMenu=>{ document.getElementsByClassName('docx-wrapper')[0].innerHTML = `
+            fetchCategories().then(leftMenu => {
+              document.getElementsByClassName('docx-wrapper')[0].innerHTML = `
  <div class="ui left fixed vertical menu">
   <div class="item">
     <img class="ui mini image" src="https://upload.wikimedia.org/wikipedia/en/a/a9/Example.jpg">
@@ -240,7 +241,8 @@ ${leftMenu}
   <a class="item">Sign-in</a>
 </div>
 `+ hardfont(document.getElementsByClassName('docx-wrapper')[0].innerHTML);
-            docxready = true;});
+              docxready = true;
+            });
           });
       })
       .catch(error => console.error('Error fetching the DOCX file:', error));
@@ -275,47 +277,181 @@ ${leftMenu}
             if (p.style.display === 'none') {
               return 9999;
             } else {
+              if (parseFloat(p.style.marginLeft)) {
+                p.onml=parseFloat(p.style.marginLeft);
+              }
               return parseFloat(p.style.marginLeft) || 0; // Use hard-coded margin or default to 0
             }
           });
           //console.log(margins);
 
           // Find the third smallest unique margin value
-          const uniqueMargins = [...new Set(margins)].sort((a, b) => a - b);
-          const targetTab = uniqueMargins[1];
-          //console.log(targetTab);
+          const uniqueMargins = [...new Set(margins)].sort((a, b) => b - a);//a - b);
+          /*var JZDobj = { level: 0, name: document.getElementById('thePageTitle').innerText, UMary: [] };
+          uniqueMargins.forEach((margin, index) => {
+            JZDobj.UMary.push({ level: index, Mval: margin, domARY: [] });
+          });*/
 
-          let isOpen = false;
-          let currentDiv = null;
+          uniqueMargins.forEach((m0o0, i0o0) => {
+            console.log(`執行層${m0o0}`);
+            if (m0o0 !== 0) {
+              const targetTab = uniqueMargins[i0o0];//1];
+              //console.log(targetTab);
+              //console.log(targetTab);
 
-          paragraphs.forEach(p => {
-            if ((parseFloat(p.style.marginLeft) || 0) === targetTab) {
-              if (p.style.display !== 'none') {
-                if (!isOpen) {
-                  // Open a new segment
-                  currentDiv = document.createElement('div');
-                  currentDiv.className = 'ui segment';
-                  p.parentNode.insertBefore(currentDiv, p);
-                  isOpen = true;
-                  currentDiv.appendChild(p);
-                } else {
-                  isOpen = false;
-                  currentDiv = null;
-                  currentDiv = document.createElement('div');
-                  currentDiv.className = 'ui segment';
-                  p.parentNode.insertBefore(currentDiv, p);
-                  isOpen = true;
-                  currentDiv.appendChild(p);
+              let isOpen = false;
+              let currentDiv = null;
+
+              //var JZDid = 0;
+              //var prevJZDid = 0;
+              Array.from(document.getElementsByClassName('docx')[0].children[0].children).forEach(p => {
+
+                if (p.innerText &&//p.style.display !== 'none' && 
+                  p.innerText.trim() !== "" &&
+                  p.innerText !== "\n" &&
+                  p.innerText !== "\r\n" &&
+                  p.innerText !== "\r" &&
+                  p.innerText !== "\t" &&
+                  !/^[\u3000\u00A0]+$/.test(p.innerText)
+                ) {
+
+                  function Tt(int2or3) {
+                    if (p.onml && parseFloat(p.onml)) {
+
+                      if ((Math.abs(parseFloat(p.onml) - targetTab) < 1)) {
+                        return 't';
+                      } else if (parseFloat(p.onml) > targetTab) {
+                        if (int2or3 === 2) {
+                          return 'f';
+                        } else if (int2or3 === 3) {
+                          return 's';
+                        } else { console.error('must be 2 or 3'); }
+                      } else {
+                        return 'f';
+                      }
+
+                    } else { return 'f'; }
+                  }
+
+                  if (isOpen) {
+                    //console.log('狀態:已開啟');
+                    if (Tt(3) === 't') {
+                      //console.log(`%c 狀態:符合目標${p.innerText}`, 'background: #222; color: #bada55');
+                      //另存新檔
+                      isOpen = false;
+                      currentDiv = null;
+                      currentDiv = document.createElement('div');
+                      currentDiv.onml = m0o0;
+                      currentDiv.className = `ui segment level-${uniqueMargins.length - i0o0} debugMG-${targetTab}`;
+                      p.parentNode.insertBefore(currentDiv, p);
+                      isOpen = true;
+                      currentDiv.appendChild(p);
+                      p.onml=-1;
+                    } else if (Tt(3) === 'f') {
+                      //console.log('狀態:不符合目標');
+                      //存檔關閉
+                      if (p.style.display === 'none') {
+                        //console.log('存檔關閉:1');
+                        isOpen = false;
+                        currentDiv = null;
+                      } else if (!parseFloat(p.onml)) {
+                        //寫入
+                        //console.log('存檔關閉:2');
+                        currentDiv.appendChild(p);
+                        p.onml=-1;
+                      }else if (parseFloat(p.onml)===-1) {
+                        //別動
+                      } else {
+                        //console.log('存檔關閉:3');
+                        //這裡邏輯糊塗了
+                        //currentDiv.appendChild(p);
+                        isOpen = false;
+                        currentDiv = null;
+                      }
+                    } else if (Tt(3) === 's') {
+                      //console.log('%c 狀態:子目標', 'background: #222; color: #bada55');
+                      //寫入
+                      currentDiv.appendChild(p);
+                      p.onml=-1;
+                    } else { console.error('must be t or f or s'); }
+                  } else {
+                    //console.log('狀態:未開啟');
+                    //開新檔案
+                    if (Tt(2) === 't') {
+                      //console.log(`%c 狀態:符合目標${p.innerText}\n level-${uniqueMargins.length - i0o0} debugMG-${targetTab}`, 'background: #222; color: #bada55');
+                      currentDiv = document.createElement('div');
+                      currentDiv.onml = m0o0;
+                      currentDiv.className = `ui segment level-${uniqueMargins.length - i0o0} debugMG-${targetTab}`;
+                      p.parentNode.insertBefore(currentDiv, p);
+                      isOpen = true;
+                      currentDiv.appendChild(p);
+                      p.onml=-1;
+                    } else if (Tt(2) === 'f') {
+                      //console.log('狀態:不符合目標');
+                      //維持狀態
+                    } else { console.error('must be t or f'); }
+                  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+                  /*
+                  JZDid++;
+                  if (parseFloat(p.style.marginLeft)) {
+                    JZDobj.UMary.forEach((item, index) => {
+                      if (Math.abs(item.Mval - parseFloat(p.style.marginLeft)) < 1) {
+                        JZDobj.UMary[index].domARY.push({ id: JZDid, innerText: p.innerHTML, prevID: prevJZDid });
+                      }
+                    });
+                  } else {
+                    //JZDobj.UMary last,  .domARY push {innertext id prevID}
+                    JZDobj.UMary[JZDobj.UMary.length - 1].domARY.push({ id: JZDid, innerText: p.innerHTML, prevID: prevJZDid });
+                  }
+                  prevJZDid = JZDid;
+                }*/
+
+                  // if (parseFloat(p.style.marginLeft) && parseFloat(p.style.marginLeft) && (Math.abs(parseFloat(p.style.marginLeft) - targetTab) < 1||parseFloat(p.style.marginLeft) < targetTab)) {
+                  //   if (p.style.display !== 'none'&&parseFloat(p.style.marginLeft) > targetTab) {
+                  //     p.classList.add(`debug-${uniqueMargins.length - i0o0}-${targetTab}`);
+                  // if (!isOpen) {
+                  //   // Open a new segment
+                  //   currentDiv = document.createElement('div');
+                  //   currentDiv.className = `ui segment level-${uniqueMargins.length - i0o0}-${targetTab}`;
+                  //   p.parentNode.insertBefore(currentDiv, p);
+                  //   isOpen = true;
+                  //   currentDiv.appendChild(p);
+                  // } else {
+                  //   isOpen = false;
+                  //   currentDiv = null;
+                  //   currentDiv = document.createElement('div');
+                  //   currentDiv.className = `ui segment level-${uniqueMargins.length - i0o0}-${targetTab}`;
+                  //   p.parentNode.insertBefore(currentDiv, p);
+                  //   isOpen = true;
+                  //   currentDiv.appendChild(p);
+                  // }
+                  // } else {
+                  // isOpen = false;
+                  // currentDiv = null;
+                  //   }
+                  // } else {
+                  // if (isOpen) {
+                  //   currentDiv.appendChild(p);
+                  // }
+                  // }
                 }
-              } else {
-                isOpen = false;
-                currentDiv = null;
-              }
-            } else {
-              if (isOpen) {
-                currentDiv.appendChild(p);
-              }
+              });
             }
+            //console.log(JZDobj);
+            //console.log(paragraphs);
           });
         } else {
           console.log('No element with class "docx" found.');
@@ -407,17 +543,17 @@ ${leftMenu}
       }
     }
     async function fetchCategories() {
-  try {
-    const response = await fetch('/l1toc.json');
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
+      try {
+        const response = await fetch('/l1toc.json');
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        return data.categories.map(category => `<a class="item" href="${category.url}">${category.name}</a>`).join('\n');
+      } catch (error) {
+        console.error('There has been a problem with your fetch operation:', error);
+      }
     }
-    const data = await response.json();
-    return data.categories.map(category => `<a class="item" href="${category.url}">${category.name}</a>`).join('\n');
-  } catch (error) {
-    console.error('There has been a problem with your fetch operation:', error);
-  }
-}
 
   </script>
 
