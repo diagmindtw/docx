@@ -291,6 +291,7 @@ ${leftMenu}
         //!important! function card
         const docxElement = document.getElementsByClassName('docx')[0].children[0];
         if (docxElement) {
+          //對於所有階層，的左側偏移量，由小到大排序
           const paragraphs = Array.from(docxElement.children);
           const margins = paragraphs.map(p => {
             if (p.style.display === 'none') {
@@ -306,21 +307,18 @@ ${leftMenu}
           // Find the third smallest unique margin value
           const uniqueMargins = [...new Set(margins)].sort((a, b) => b - a);//a - b);
 
+          //由最大的偏移量開始(由輩份最小的巢狀AKA最深的巢狀開始)一直執行到最淺的巢狀(最小的偏移量)
           uniqueMargins.forEach((m0o0, i0o0) => {
             console.log(`執行層${m0o0}`);
             if (m0o0 !== 0) {
               const targetTab = uniqueMargins[i0o0];//1];
-              //console.log(targetTab);
-              //console.log(targetTab);
 
               let isOpen = false;
               let currentDiv = null;
 
-              //var JZDid = 0;
-              //var prevJZDid = 0;
               Array.from(document.getElementsByClassName('docx')[0].children[0].children).forEach(p => {
-
-                if (p.innerText &&//p.style.display !== 'none' && 
+//略過純空白的DOM
+                if (p.innerText &&
                   p.innerText.trim() !== "" &&
                   p.innerText !== "\n" &&
                   p.innerText !== "\r\n" &&
@@ -328,7 +326,7 @@ ${leftMenu}
                   p.innerText !== "\t" &&
                   !/^[\u3000\u00A0]+$/.test(p.innerText)
                 ) {
-
+//這裡是個有限狀態機，當遇到的DOM的階層數符合所需時，轉移狀態
                   function Tt(int2or3) {
                     if (p.onml && parseFloat(p.onml)) {
 
@@ -348,9 +346,7 @@ ${leftMenu}
                   }
 
                   if (isOpen) {
-                    //console.log('狀態:已開啟');
                     if (Tt(3) === 't') {
-                      //console.log(`%c 狀態:符合目標${p.innerText}`, 'background: #222; color: #bada55');
                       //另存新檔
                       isOpen = false;
                       currentDiv = null;
@@ -362,37 +358,29 @@ ${leftMenu}
                       currentDiv.appendChild(p);
                       p.onml=-1;
                     } else if (Tt(3) === 'f') {
-                      //console.log('狀態:不符合目標');
                       //存檔關閉
                       if (p.style.display === 'none') {
-                        //console.log('存檔關閉:1');
                         isOpen = false;
                         currentDiv = null;
                       } else if (!parseFloat(p.onml)) {
                         //寫入
-                        //console.log('存檔關閉:2');
                         currentDiv.appendChild(p);
                         p.onml=-1;
                       }else if (parseFloat(p.onml)===-1) {
                         //別動
                       } else {
-                        //console.log('存檔關閉:3');
                         //這裡邏輯糊塗了
-                        //currentDiv.appendChild(p);
                         isOpen = false;
                         currentDiv = null;
                       }
                     } else if (Tt(3) === 's') {
-                      //console.log('%c 狀態:子目標', 'background: #222; color: #bada55');
                       //寫入
                       currentDiv.appendChild(p);
                       p.onml=-1;
                     } else { console.error('must be t or f or s'); }
                   } else {
-                    //console.log('狀態:未開啟');
                     //開新檔案
                     if (Tt(2) === 't') {
-                      //console.log(`%c 狀態:符合目標${p.innerText}\n level-${uniqueMargins.length - i0o0} debugMG-${targetTab}`, 'background: #222; color: #bada55');
                       currentDiv = document.createElement('div');
                       currentDiv.onml = m0o0;
                       currentDiv.className = `ui segment level-${uniqueMargins.length - i0o0} debugMG-${targetTab}`;
@@ -401,7 +389,6 @@ ${leftMenu}
                       currentDiv.appendChild(p);
                       p.onml=-1;
                     } else if (Tt(2) === 'f') {
-                      //console.log('狀態:不符合目標');
                       //維持狀態
                     } else { console.error('must be t or f'); }
                   }
@@ -422,7 +409,7 @@ ${leftMenu}
         document.getElementsByClassName('docx-wrapper')[0].style.backgroundColor = '#bfbfbf';
         //上面顏色這個應該是調甚麼背景色
 
-//以下的程式碼是在優化table的
+//以下的程式碼是在優化table的(反正表格區是AI寫的，直接整段丟AI解釋就好我不註解，https://docs.google.com/document/d/e/2PACX-1vR4b9y8lUdHSrgmrB_bhfBHG_02bZlWq8pYVeQ1wdUushVCDdOrNB2TubMx5mxGZ5yAQgjI3j1s2cC6/pub)
         
         //table
         function upgradeTables() {
@@ -494,7 +481,7 @@ ${leftMenu}
   <script>
     //區域[函式](區域起始)
     function hardfont(x) {//目標:把google的字加到微軟的字前面，這裡是因為onedrive自帶字體設定硬寫在html中
-      if (false) { return x; } else {
+      if (false) { return x; } else {//TODO喔喔是想說如果客戶不要用google字體，可以這裡關掉，應該要用成設定檔之類的
         const fontFamilyRegex = /font-family\s*:\s*([^;]+);/gi;
 
         return x.replace(fontFamilyRegex, (match, p1) => {
