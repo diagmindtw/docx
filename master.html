@@ -10,6 +10,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>DOCX Preview</title>
+  <!--區域1 反正就叫一堆CSS (區域起始)-->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.5.0/semantic.min.css"
     integrity="sha512-KXol4x3sVoO+8ZsWPFI/r5KBVB/ssCGB5tsv2nVOKwLg33wTFP3fmnXa47FdSVIshVTgsYk/1734xSk9aFIa4A=="
     crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -23,6 +24,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.5.0/components/table.min.css"
     integrity="sha512-LO7R36eoQTR8mctOTFrAUUGCBiqbouo0mzi5dicyVrW76ECJSI4leeTh3PIX4Hp+09++NA3TVFPRg/0C7viORA=="
     crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <!--區域1 反正就叫一堆CSS (區域結束)-->
   <style>
     .full-page-loader {
       position: fixed;
@@ -55,7 +57,9 @@
 
     }
 
-    /* <weight>: Use a value from 100 to 900
+    /* 
+    區域3 字體 區域起始
+    <weight>: Use a value from 100 to 900
        <uniquifier>: Use a unique and descriptive class name*/
     .noto-sans-300 {
       font-family: "Noto Sans", sans-serif;
@@ -71,14 +75,18 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@100..900&family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap"
     rel="stylesheet">
+  <!--區域三 字體 區域結束-->
 </head>
 
 <body>
+  <!--區域四 主HTML 區域起始-->
+  <!--本區HTML概述，一個docx主容器，一個loader，在docx主容器尚未渲染完成前，UI轉轉轉-->
   <script>var docxready = false;</script>
   <div id="loader" class="ui active inverted dimmer full-page-loader">
     <div class="ui large text loader">Loading</div>
   </div>
   <div id="container" style="display: none;"></div>
+   <!--區域四 主HTML 區域結束            以下的部分不重要，真的不重要 一大段垃圾HTML 就是裝飾品          (區域:裝飾HTML 起始)                                   -->
   <div id="myFoot" class="ui  vertical footer segment" style="display: none;">
     <div class="ui center aligned container">
       <div class="ui stackable grid">
@@ -111,17 +119,21 @@
       </div>
     </div>
   </div>
+<!--  (區域:裝飾HTML 結束)       -->
+  
   <script>
     fetch('./example.docx')
       .then(response => response.blob())
       .then(blob => {
+        //這裡做一件事，onenote輸出整個筆記是整個章，沒分節，分節的方式用日期，所以就是英文日期中文日期regex
         var docData = blob;
         docx.renderAsync(docData, document.getElementById("container"))
-          .then(x => {
+          .then(x => {//docx 終於被載入了
             console.log("docx: finished");
             const docxElement = document.getElementsByClassName('docx')[0];
             const elements = Array.from(docxElement.querySelectorAll('*'));
             var rightMenu = '';
+            //這段就是要分節
             const pattern1 = /\d{4}年\d{1,2}月\d{1,2}日\s*[上下]午\s*\d{1,2}:\d{1,2}/;
             const pattern2 = /\b[^\(\)（）:\d\s]+,\s[^\(\)（）:\d\s]+\s\d{1,2},\s\d{4}\s*\d{1,2}:\d{1,2}\s[AP]M\b/;
             var hashIDX = 1;
@@ -131,12 +143,13 @@
               const nextSiblingText = el.nextSibling?.innerText || ''; // Handle missing nextSibling safely
               const line2_push = el.innerText + nextSiblingText;
 
-              if (pattern1.test(line2_push)) {
+              if (pattern1.test(line2_push)) {//每遇到一個節標題就存到右側目錄中
                 rightMenu += `<a class="item" href="#${hashIDX + 1}" onclick="if (event.target.tagName === 'A') {event.preventDefault(); window.location.href = event.target.href;  window.location.reload();  }">${el.previousSibling.innerText}</a>`;
                 hashIDX++;
                 el.style.display = 'none';
                 el.nextSibling.style.display = 'none';
-                if (hashIDX === currentStage3index) {
+                if (hashIDX === currentStage3index) {//然後非URL中的小節數就隱藏
+                  //順便抓大標
                   const h1 = document.createElement('h1');
                   h1.textContent = el.previousSibling.innerText;
                   h1.id = "thePageTitle";
@@ -157,6 +170,7 @@
                 }
               }
 
+              //這段跟剛剛那段一樣，只是一個抓英文一個抓中文
               if (pattern2.test(line2_push)) {
                 rightMenu += `<a class="item" href="#${hashIDX + 1}" onclick="if (event.target.tagName === 'A') {event.preventDefault(); window.location.href = event.target.href;  window.location.reload();  }">${el.previousSibling.innerText}</a>`;
                 hashIDX++;
@@ -184,13 +198,13 @@
               }
 
               if (hashIDX !== currentStage3index || (pattern1.test((el.nextSibling?.innerText || '') + (el.nextSibling?.nextSibling?.innerText || '')) || pattern2.test((el.nextSibling?.innerText || '') + (el.nextSibling?.nextSibling?.innerText || '')))) {
-                el.style.display = 'none';
+                el.style.display = 'none';//好，幹我忘記隱藏的邏輯到底是啥了，我道歉，前面不是隱藏過了這裡還要隱藏...by andy
               }
 
             }
-            document.getElementsByClassName('docx-wrapper')[0].classList.add('ui');
+            document.getElementsByClassName('docx-wrapper')[0].classList.add('ui');//這裡就開始套UI框架
             document.getElementsByClassName('docx-wrapper')[0].classList.add('segment');
-            fetchCategories().then(leftMenu => {
+            fetchCategories().then(leftMenu => {//然後這段加左右選單
               document.getElementsByClassName('docx-wrapper')[0].innerHTML = `
  <div class="ui left fixed vertical menu">
   <div class="item">
@@ -240,13 +254,14 @@ ${leftMenu}
   <a class="item">Testimonials</a>
   <a class="item">Sign-in</a>
 </div>
-`+ hardfont(document.getElementsByClassName('docx-wrapper')[0].innerHTML);
+`+ hardfont(document.getElementsByClassName('docx-wrapper')[0].innerHTML);//然後這段改字體
               docxready = true;
             });
           });
       })
       .catch(error => console.error('Error fetching the DOCX file:', error));
   </script>
+  <!--以下的套件引入供「docx後處裡」使用-->
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"
     integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.5.0/semantic.min.js"
@@ -255,7 +270,10 @@ ${leftMenu}
   <script src="https://cdn.datatables.net/2.2.2/js/dataTables.min.js" crossorigin="anonymous"
     referrerpolicy="no-referrer"></script>
 
+<!--這個分野很重要，以上，docx尚未完成載入，以下，docx完成載入。為甚麼這樣分是，如果原始資料不是docx是html應該就是跑下面就好，不需要分節(上面)的動作-->
+  
   <script>
+    //這裡直接看網址列#後面的數字決定要載入哪個寫小節
     var currentStage3index = -1;
     $(document).ready(function () {
       currentStage3index = parseInt(window.location.hash.substring(1));
@@ -263,9 +281,10 @@ ${leftMenu}
         currentStage3index = 1;
       }
     });
-    function checkVariable() {
+    //這裡是docx載入後的修改區域
+    function checkVariable() {//所以這裡才是重中之重，其他都不重要
       if (docxready) {
-        document.getElementById('loader').style.display = 'none';
+        document.getElementById('loader').style.display = 'none';//隱藏loader
         document.getElementById('container').style.display = 'block';
         document.getElementById('myFoot').style.display = 'block';
 
@@ -283,14 +302,9 @@ ${leftMenu}
               return parseFloat(p.style.marginLeft) || 0; // Use hard-coded margin or default to 0
             }
           });
-          //console.log(margins);
 
           // Find the third smallest unique margin value
           const uniqueMargins = [...new Set(margins)].sort((a, b) => b - a);//a - b);
-          /*var JZDobj = { level: 0, name: document.getElementById('thePageTitle').innerText, UMary: [] };
-          uniqueMargins.forEach((margin, index) => {
-            JZDobj.UMary.push({ level: index, Mval: margin, domARY: [] });
-          });*/
 
           uniqueMargins.forEach((m0o0, i0o0) => {
             console.log(`執行層${m0o0}`);
@@ -391,78 +405,25 @@ ${leftMenu}
                       //維持狀態
                     } else { console.error('must be t or f'); }
                   }
-
-
-
-
-
-
-
-
-
-
-
-
-
-                  /*
-                  JZDid++;
-                  if (parseFloat(p.style.marginLeft)) {
-                    JZDobj.UMary.forEach((item, index) => {
-                      if (Math.abs(item.Mval - parseFloat(p.style.marginLeft)) < 1) {
-                        JZDobj.UMary[index].domARY.push({ id: JZDid, innerText: p.innerHTML, prevID: prevJZDid });
-                      }
-                    });
-                  } else {
-                    //JZDobj.UMary last,  .domARY push {innertext id prevID}
-                    JZDobj.UMary[JZDobj.UMary.length - 1].domARY.push({ id: JZDid, innerText: p.innerHTML, prevID: prevJZDid });
-                  }
-                  prevJZDid = JZDid;
-                }*/
-
-                  // if (parseFloat(p.style.marginLeft) && parseFloat(p.style.marginLeft) && (Math.abs(parseFloat(p.style.marginLeft) - targetTab) < 1||parseFloat(p.style.marginLeft) < targetTab)) {
-                  //   if (p.style.display !== 'none'&&parseFloat(p.style.marginLeft) > targetTab) {
-                  //     p.classList.add(`debug-${uniqueMargins.length - i0o0}-${targetTab}`);
-                  // if (!isOpen) {
-                  //   // Open a new segment
-                  //   currentDiv = document.createElement('div');
-                  //   currentDiv.className = `ui segment level-${uniqueMargins.length - i0o0}-${targetTab}`;
-                  //   p.parentNode.insertBefore(currentDiv, p);
-                  //   isOpen = true;
-                  //   currentDiv.appendChild(p);
-                  // } else {
-                  //   isOpen = false;
-                  //   currentDiv = null;
-                  //   currentDiv = document.createElement('div');
-                  //   currentDiv.className = `ui segment level-${uniqueMargins.length - i0o0}-${targetTab}`;
-                  //   p.parentNode.insertBefore(currentDiv, p);
-                  //   isOpen = true;
-                  //   currentDiv.appendChild(p);
-                  // }
-                  // } else {
-                  // isOpen = false;
-                  // currentDiv = null;
-                  //   }
-                  // } else {
-                  // if (isOpen) {
-                  //   currentDiv.appendChild(p);
-                  // }
-                  // }
                 }
               });
             }
-            //console.log(JZDobj);
-            //console.log(paragraphs);
           });
         } else {
           console.log('No element with class "docx" found.');
         }
 
+//以上的程式碼是在搞巢狀的
+        
         //!important! give me come color
         const docxElement_main = document.getElementsByClassName('docx')[0];
         docxElement_main.style.backgroundColor = '#f2f2f2';
         docxElement.style.backgroundColor = '#f2f2f2';
         document.getElementsByClassName('docx-wrapper')[0].style.backgroundColor = '#bfbfbf';
+        //上面顏色這個應該是調甚麼背景色
 
+//以下的程式碼是在優化table的
+        
         //table
         function upgradeTables() {
           document.querySelectorAll("table").forEach(table => {
@@ -527,13 +488,12 @@ ${leftMenu}
       }
     }
 
-    // Start checking the variable
+    // 在整個docx load完成後，會進入後期的編修
     checkVariable();
-
-
   </script>
   <script>
-    function hardfont(x) {
+    //區域[函式](區域起始)
+    function hardfont(x) {//目標:把google的字加到微軟的字前面，這裡是因為onedrive自帶字體設定硬寫在html中
       if (false) { return x; } else {
         const fontFamilyRegex = /font-family\s*:\s*([^;]+);/gi;
 
@@ -542,7 +502,7 @@ ${leftMenu}
         });
       }
     }
-    async function fetchCategories() {
+    async function fetchCategories() {//添加左側選單(吃一個json，在github中)
       try {
         const response = await fetch('/l1toc.json');
         if (!response.ok) {
@@ -554,10 +514,7 @@ ${leftMenu}
         console.error('There has been a problem with your fetch operation:', error);
       }
     }
-
+    //區域[函式](區域結束)
   </script>
-
-
 </body>
-
 </html>
