@@ -58,6 +58,19 @@
       left: -120px;
     }
 
+    /* 讓標題可以水平滾動 */
+    h1#thePageTitle {
+      max-width: 100%;
+      overflow-x: auto;
+      /* Hide scrollbar for Chrome, Safari and IE */
+      -ms-overflow-style: none;  /* Internet Explorer 10+ */
+      scrollbar-width: none;  /* Firefox */
+    }
+
+    h1#thePageTitle::-webkit-scrollbar {
+        display: none;  /* Safari and Chrome */
+    }
+
     /*選單收合功能*/
     /* Menu Wrapper */
     .menu-wrapper {
