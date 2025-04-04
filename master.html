@@ -164,6 +164,18 @@
       font-variation-settings:
         "wdth" 100;
     }
+
+    @media (max-width: 1200px) {
+      #rightMenuWrapper {
+        transform: translateX(100%);
+      }
+    }
+
+    @media (max-width: 850px) {
+      #leftMenuWrapper {
+        transform: translateX(-100%);
+      }
+    }
   </style>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -643,7 +655,17 @@
         console.error('Menu element or toggle button not found.');
         return;
       }
+
       let isMenuVisible = true;
+      if (window.innerWidth <= 850) {
+        isMenuVisible = false;
+      } else if (window.innerWidth <= 1200) {
+        isMenuVisible = direction === 'left';
+      }
+
+      if (!isMenuVisible) {
+        toggleButton.innerHTML = `<i class="ui angle ${direction === 'left' ? 'right' : 'left'} icon"></i>`;
+      }
 
       toggleButton.addEventListener('click', () => {
         if (isMenuVisible) {
