@@ -56,7 +56,59 @@
       /*margin-left: 1vw;*/
       position: relative;
       left: -120px;
+    }
 
+    /*選單收合功能*/
+    /* Menu Wrapper */
+    .menu-wrapper {
+      position: fixed;
+      top: 0;
+      height: 100%;
+      width: auto;
+      z-index: 100;
+      background: none;
+      border: none;
+      overflow: visible;
+    }
+
+    #leftMenuWrapper {
+      transform: translateX(0);
+      transition: transform 0.3s ease;
+    }
+
+    #rightMenuWrapper {
+      transform: translateX(0);
+      transition: transform 0.3s ease;
+    }
+
+    /* 1. Restore Semantic UI Menu Item Styles
+       2. Enable vertically scrolling */
+    #leftMenu, #rightMenu {
+      position: absolute;
+      overflow-y: auto;
+      max-height: 100%;
+      transition: transform 0.3s ease;
+    }
+
+    #leftMenu .item, #rightMenu .item {
+      font-weight: 400;
+      color: #333;
+      border-bottom: 1px solid #ddd;
+    }
+    
+    #leftMenu .item {
+      padding: 1em 14px;
+      font-size: 14px;
+    }
+
+    #rightMenu .item {
+      padding: .8em 12px;
+      font-size: 12px;
+    }
+
+    #leftMenu .item:hover, #rightMenu .item:hover {
+      background-color: #f9f9f9;
+      color: #000;
     }
 
     /* 
@@ -208,18 +260,6 @@
             document.getElementsByClassName('docx-wrapper')[0].classList.add('segment');
             fetchCategories().then(leftMenu => {//然後這段加左右選單
               document.getElementsByClassName('docx-wrapper')[0].innerHTML = `
- <div class="ui left fixed vertical menu">
-  <div class="item">
-    <img class="ui mini image" src="https://upload.wikimedia.org/wikipedia/en/a/a9/Example.jpg">
-  </div>
-${leftMenu}
-</div>
-<div class="ui right fixed vertical menu" style="overflow-y: auto; max-height: 100vh;">
-  <div class="item">
-    <img class="ui mini image" src="https://upload.wikimedia.org/wikipedia/en/a/a9/Example.jpg">
-  </div>
-  ${rightMenu}
-</div>
 <div class="ui top fixed menu">
   <div class="header item">Brand</div>
   <a class="active item">Link</a>
@@ -248,6 +288,22 @@ ${leftMenu}
     <a class="item">Link</a>
   </div>
 </div>
+<div class="ui vertical menu menu-wrapper" id="leftMenuWrapper" style="left: 0;">
+  <div class="ui left fixed vertical menu" id="leftMenu">
+    <div class="item">
+      <img class="ui mini image" src="https://upload.wikimedia.org/wikipedia/en/a/a9/Example.jpg">
+    </div>
+    ${leftMenu}
+  </div>
+</div>
+<div class="ui vertical menu menu-wrapper" id="rightMenuWrapper" style="right: 0;">
+  <div class="ui right fixed vertical menu" id="rightMenu">
+    <div class="item">
+      <img class="ui mini image" src="https://upload.wikimedia.org/wikipedia/en/a/a9/Example.jpg">
+    </div>
+    ${rightMenu}
+    </div>
+</div>
 <div class="ui bottom fixed menu">
   <div class="item">
     <img src="/images/logo.png">
@@ -257,7 +313,9 @@ ${leftMenu}
   <a class="item">Sign-in</a>
 </div>
 `+ hardfont(document.getElementsByClassName('docx-wrapper')[0].innerHTML);//然後這段改字體
-              docxready = true;
+            // 調整選單高度
+            adjustVerticalMenuTop();
+            docxready = true;
             });
           });
       })
@@ -503,6 +561,28 @@ ${leftMenu}
         console.error('There has been a problem with your fetch operation:', error);
       }
     }
+
+    function adjustVerticalMenuTop() {
+      // 自動調整選單高度(top)
+      const topMenu = document.querySelector('.ui.top.fixed.menu');
+      const verticalMenuWrappers = document.querySelectorAll('.ui.vertical.menu.menu-wrapper');
+      
+      if (!verticalMenuWrappers.length) {
+        console.error('No vertical menu wrappers found: ', verticalMenuWrappers);
+        return;
+      }
+
+      // Get the heights of the top menu
+      let topMenuHeight = (topMenu?.offsetHeight) && (topMenu.offsetHeight !== 0) ? topMenu.offsetHeight : 48;
+
+      // Set the top margin of the verticalMenuWrapper
+      verticalMenuWrappers.forEach(el => {
+        el.style.marginTop = `${topMenuHeight}px`;
+      });
+    }
+
+    // Call the function on window resize
+    window.addEventListener('resize', adjustVerticalMenuTop);
     //區域[函式](區域結束)
   </script>
 </body>
