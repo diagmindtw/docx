@@ -752,24 +752,24 @@
     function adjustDocxPosition() {
       //調整內文位置
       const docxContainer = document.getElementsByClassName('docx')[0];
-      if (!docxContainer) {
-        console.error('docx element haven\'t loaded yet.');
-        return;
-      }
       const leftMenuWrapper = document.getElementById('leftMenuWrapper');
       const rightMenuWrapper = document.getElementById('rightMenuWrapper');
-      if (!leftMenuWrapper || !rightMenuWrapper) {
-        console.error('Left or right menu wrapper not found.');
+      if (!docxContainer || !leftMenuWrapper || !rightMenuWrapper) {
+        console.log('docx, leftMenuWrapper, or rightMenuWrapper have not loaded yet.');
+        // Retry after a short delay
+        setTimeout(adjustDocxPosition, 100);
         return;
       }
 
       if (window.innerWidth < 850) {
         // Reset the margin when the viewport is smaller than 850px
-        // docxContainer.style.marginLeft = '0px';
-        docxContainer.style.margin = '0 auto';
-      } else if (window.innerWidth < 1200){
-        // 只在viewport在850~1200，且左側選單打開、右側選單收起時，才調整內文位置
-        if (rightMenuWrapper.style.transform === 'translateX(100%)' && leftMenuWrapper.style.transform !== 'translateX(-100%)') {
+        docxContainer.style.marginLeft = '0px';
+        return;
+      }
+      
+      if (window.innerWidth < 1200){
+        // 只在viewport在850~1200才調整內文位置
+        if (rightMenuWrapper.style?.transform !== 'translateX(0)' && leftMenuWrapper.style?.transform !== 'translateX(-100%)') {
           let leftMenuWidth = leftMenuWrapper.style.transform === 'translateX(-100%)' ? 0 : leftMenuWrapper.offsetWidth;
           let rightMenuWidth = rightMenuWrapper.style.transform === 'translateX(100%)' ? 0 : rightMenuWrapper.offsetWidth;
           // Calculate the available width and center the docx container
@@ -777,10 +777,10 @@
           let docxMarginLeft = leftMenuWidth + availableWidth / 2 - docxContainer.offsetWidth / 2;
 
           // Apply the calculated margin to center the docx container
-          docxContainer.style.marginLeft = `${Math.max(docxMarginLeft, leftMenuWidth)}px`;
+          docxContainer.style.marginLeft = `${Math.min(docxMarginLeft, leftMenuWidth)}px`;
         } else {
           // Reset the margin when the right menu is visible
-          docxContainer.style.margin = '0 auto';
+          docxContainer.style.marginLeft = '0px';
         }
       }
     }
