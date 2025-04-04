@@ -465,6 +465,17 @@
             // 調整內文位置
             adjustDocxPosition();
 
+            // 設置點擊內文時收起選單的功能
+            const article = document.querySelector('.docx article');
+            article.addEventListener('click', () => {
+              if (window.innerWidth < 850 && leftMenuWrapper.style?.transform !== 'translateX(-100%)') {
+                  leftMenuToggle.click();
+              }
+              if (window.innerWidth < 1200 && rightMenuWrapper.style?.transform !== 'translateX(100%)') {
+                  rightMenuToggle.click();
+              }
+            });
+
             docxready = true;
             });
           });
