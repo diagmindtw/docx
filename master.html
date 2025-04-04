@@ -95,7 +95,7 @@
       color: #333;
       border-bottom: 1px solid #ddd;
     }
-    
+
     #leftMenu .item {
       padding: 1em 14px;
       font-size: 14px;
@@ -109,6 +109,47 @@
     #leftMenu .item:hover, #rightMenu .item:hover {
       background-color: #f9f9f9;
       color: #000;
+    }
+
+    #leftMenuToggle, #rightMenuToggle {
+      background-color: #fff;
+      border: 1px solid #ddd;
+      width: 16px;
+      height: 30px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    #leftMenuToggle {
+      right: -16px;
+      border-top-right-radius: 20%;
+      border-bottom-right-radius: 20%;
+    }
+
+    #rightMenuToggle {
+      left: -16px;
+      border-top-left-radius: 20%;
+      border-bottom-left-radius: 20%;
+    }
+
+    #leftMenuToggle i, #rightMenuToggle i {
+      color: #333;
+      font-size: 16px;
+      top: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 0;
+    }
+
+    #leftMenuToggle:hover, #rightMenuToggle:hover {
+      background-color: #e0e0e0;
+      cursor: pointer;
     }
 
     /* 
@@ -295,6 +336,9 @@
     </div>
     ${leftMenu}
   </div>
+  <div id="leftMenuToggle">
+    <i class="ui angle left icon"></i>
+  </div>
 </div>
 <div class="ui vertical menu menu-wrapper" id="rightMenuWrapper" style="right: 0;">
   <div class="ui right fixed vertical menu" id="rightMenu">
@@ -302,7 +346,10 @@
       <img class="ui mini image" src="https://upload.wikimedia.org/wikipedia/en/a/a9/Example.jpg">
     </div>
     ${rightMenu}
-    </div>
+  </div>
+  <div id="rightMenuToggle">
+    <i class="ui angle right icon"></i>
+  </div>
 </div>
 <div class="ui bottom fixed menu">
   <div class="item">
@@ -315,6 +362,15 @@
 `+ hardfont(document.getElementsByClassName('docx-wrapper')[0].innerHTML);//然後這段改字體
             // 調整選單高度
             adjustVerticalMenuTop();
+
+            // 讓選單可以收起來
+            const leftMenuWrapper = document.getElementById('leftMenuWrapper');
+            const rightMenuWrapper = document.getElementById('rightMenuWrapper');
+            const leftMenuToggle = document.getElementById('leftMenuToggle');
+            const rightMenuToggle = document.getElementById('rightMenuToggle');
+            setupMenuToggle(leftMenuWrapper, leftMenuToggle, 'left');
+            setupMenuToggle(rightMenuWrapper, rightMenuToggle, 'right');
+
             docxready = true;
             });
           });
@@ -578,6 +634,26 @@
       // Set the top margin of the verticalMenuWrapper
       verticalMenuWrappers.forEach(el => {
         el.style.marginTop = `${topMenuHeight}px`;
+      });
+    }
+
+    function setupMenuToggle(menuElement, toggleButton, direction) {
+      //選單收合功能
+      if (!menuElement || !toggleButton) {
+        console.error('Menu element or toggle button not found.');
+        return;
+      }
+      let isMenuVisible = true;
+
+      toggleButton.addEventListener('click', () => {
+        if (isMenuVisible) {
+          menuElement.style.transform = `translateX(${direction === 'left' ? '-100%' : '100%'})`;
+          toggleButton.innerHTML = `<i class="ui angle ${direction === 'left' ? 'right' : 'left'} icon"></i>`;
+        } else {
+          menuElement.style.transform = 'translateX(0)';
+          toggleButton.innerHTML = `<i class="ui angle ${direction === 'left' ? 'left' : 'right'} icon"></i>`;
+        }
+        isMenuVisible = !isMenuVisible;
       });
     }
 
