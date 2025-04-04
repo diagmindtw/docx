@@ -165,15 +165,81 @@
         "wdth" 100;
     }
 
+    /* RWD: 根據螢幕viewport大小決定layout，一共分成四個範圍
+        範圍1: > 1200px (預設layout)
+        範圍2: < 1200px
+        範圍3: < 850px
+        範圍4: < 600px
+        注意: 這些範圍的作用是疊加的；舉例來說，當螢幕寬度小於850px時，會依照 範圍1 > 範圍2 > 範圍3 的順序來套用CSS樣式 */
+
+    /* 範圍2: < 1200px
+        在此範圍內，右選單會自動隱藏起來(可拉開)，筆記分頁標題與內文的字體大小會變小 */
     @media (max-width: 1200px) {
+      /* 右選單預設收攏 */
       #rightMenuWrapper {
         transform: translateX(100%);
       }
+
+      /* 字體大小調整 */
+      h1#thePageTitle {
+        font-size: 1.8rem;
+      }
+      .docx article div.ui.segment.level-2 p span{
+        font-size: 14pt !important;
+      }
+      .docx article div.ui.segment.level-3 p span{
+        font-size: 12pt !important;
+      }
     }
 
+    /* 範圍3: < 850px
+        在此範圍內，左選單會自動隱藏起來(可拉開)，筆記分頁標題與內文的字體大小會變小 */
     @media (max-width: 850px) {
+      /* 調整內文整體layout至合適大小 */
+      #container {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        margin: 0 auto;
+        padding: 1rem;
+        width: 100%;
+        box-sizing: border-box;
+        overflow-x: auto;
+      }
+      /* 允許內文水平滾動 */
+      .docx {
+        width: auto;
+        max-width: none;
+        margin: 0 auto;
+        overflow-x: auto;
+        display: block;
+        box-sizing: border-box;
+        white-space: nowrap;
+      }
+
+      /* 左選單預設收攏 */
       #leftMenuWrapper {
         transform: translateX(-100%);
+      }
+
+      /* 字體大小調整 */
+      h1#thePageTitle {
+        font-size: 1.5rem;
+      }
+      .docx article div.ui.segment.level-2 p span{
+        font-size: 12pt !important;
+      }
+      .docx article div.ui.segment.level-3 p span{
+        font-size: 10pt !important;
+      }
+    }
+
+    /* 範圍4: < 600px
+        在此範圍內，筆記分頁標題的字體大小會變小 */
+    @media (max-width: 600px) {
+      /* 字體大小調整 */
+      h1#thePageTitle {
+        font-size: 1.2rem;
       }
     }
   </style>
