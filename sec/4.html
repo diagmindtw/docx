@@ -41,6 +41,11 @@
       z-index: 9999;
     }
 
+    /* Add cursor pointer style for the landing page button */
+    #button_back_to_landing_page {
+      cursor: pointer;
+    }
+
     .dt-container {
       background-color: #F3F3E8;
       /*這個寬度從.docx來的 595.3*0.96*/
@@ -393,7 +398,7 @@
             fetchCategories().then(leftMenu => {//然後這段加左右選單
               document.getElementsByClassName('docx-wrapper')[0].innerHTML = `
 <div class="ui top fixed menu">
-  <div class="header item">Brand</div>
+  <div class="header item" onclick="window.location.href='https://diagmindtw.com/'" id="button_back_to_landing_page">diagmindtw</div>
   <a class="active item">Link</a>
   <a class="item">Link</a>
   <div class="ui dropdown item" tabindex="0">
@@ -422,9 +427,6 @@
 </div>
 <div class="ui vertical menu menu-wrapper" id="leftMenuWrapper" style="left: 0;">
   <div class="ui left fixed vertical menu" id="leftMenu">
-    <div class="item">
-      <img class="ui mini image" src="https://upload.wikimedia.org/wikipedia/en/a/a9/Example.jpg">
-    </div>
     ${leftMenu}
   </div>
   <div id="leftMenuToggle">
@@ -433,9 +435,6 @@
 </div>
 <div class="ui vertical menu menu-wrapper" id="rightMenuWrapper" style="right: 0;">
   <div class="ui right fixed vertical menu" id="rightMenu">
-    <div class="item">
-      <img class="ui mini image" src="https://upload.wikimedia.org/wikipedia/en/a/a9/Example.jpg">
-    </div>
     ${rightMenu}
   </div>
   <div id="rightMenuToggle">
