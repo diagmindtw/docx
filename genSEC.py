@@ -35,6 +35,8 @@ try:
         vartmp = item.get("name", "")
         print(f"Processing: {vartmp}")
         modified_content = content.replace("./example.docx", f"/docxView/{vartmp}.docx")
+        # Replace the ./public with ../public
+        modified_content = modified_content.replace("./public", "../public")
         output_path = f"./sec/{i}.html"
         
         with open(output_path, "w", encoding="utf-8") as file:

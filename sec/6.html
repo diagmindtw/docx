@@ -10,19 +10,23 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>DOCX Preview</title>
+  <!--區域1 反正就叫一堆CSS (區域起始)-->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.5.0/semantic.min.css"
     integrity="sha512-KXol4x3sVoO+8ZsWPFI/r5KBVB/ssCGB5tsv2nVOKwLg33wTFP3fmnXa47FdSVIshVTgsYk/1734xSk9aFIa4A=="
     crossorigin="anonymous" referrerpolicy="no-referrer" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.5.0/components/rail.min.css"
     integrity="sha512-5otZXyOy1WoHVUtIkCWTouUsd4FATLQxdn0iNNhwdi+Fsrfr2mZZf0nf8YyYJhhHQcHVhPsbCY3TvqfrmxURwQ=="
     crossorigin="anonymous" referrerpolicy="no-referrer" />
-  <script src="https://unpkg.com/jszip/dist/jszip.min.js"></script>
-  <script src="https://unpkg.com/docx-preview/dist/docx-preview.min.js"></script>
+  <!-- <script src="https://unpkg.com/jszip/dist/jszip.min.js"></script> -->
+  <script src="../public/js/jszip.min.js"></script>
+  <!-- <script src="https://unpkg.com/docx-preview/dist/docx-preview.min.js"></script> -->
+  <script src="../public/js/docx-preview.min.js"></script>
   <link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.dataTables.min.css"
     crossorigin="anonymous" referrerpolicy="no-referrer" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.5.0/components/table.min.css"
     integrity="sha512-LO7R36eoQTR8mctOTFrAUUGCBiqbouo0mzi5dicyVrW76ECJSI4leeTh3PIX4Hp+09++NA3TVFPRg/0C7viORA=="
     crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <!--區域1 反正就叫一堆CSS (區域結束)-->
   <style>
     .full-page-loader {
       position: fixed;
@@ -52,10 +56,118 @@
       /*margin-left: 1vw;*/
       position: relative;
       left: -120px;
-
     }
 
-    /* <weight>: Use a value from 100 to 900
+    /* 讓標題可以水平滾動 */
+    h1#thePageTitle {
+      max-width: 100%;
+      overflow-x: auto;
+      /* Hide scrollbar for Chrome, Safari and IE */
+      -ms-overflow-style: none;  /* Internet Explorer 10+ */
+      scrollbar-width: none;  /* Firefox */
+    }
+
+    h1#thePageTitle::-webkit-scrollbar {
+        display: none;  /* Safari and Chrome */
+    }
+
+    /*選單收合功能*/
+    /* Menu Wrapper */
+    .menu-wrapper {
+      position: fixed;
+      top: 0;
+      height: 100%;
+      width: auto;
+      z-index: 100;
+      background: none;
+      border: none;
+      overflow: visible;
+    }
+
+    #leftMenuWrapper {
+      transform: translateX(0);
+      transition: transform 0.3s ease;
+    }
+
+    #rightMenuWrapper {
+      transform: translateX(0);
+      transition: transform 0.3s ease;
+    }
+
+    /* 1. Restore Semantic UI Menu Item Styles
+       2. Enable vertically scrolling */
+    #leftMenu, #rightMenu {
+      position: absolute;
+      overflow-y: auto;
+      max-height: 100%;
+      transition: transform 0.3s ease;
+    }
+
+    #leftMenu .item, #rightMenu .item {
+      font-weight: 400;
+      color: #333;
+      border-bottom: 1px solid #ddd;
+    }
+
+    #leftMenu .item {
+      padding: 1em 14px;
+      font-size: 14px;
+    }
+
+    #rightMenu .item {
+      padding: .8em 12px;
+      font-size: 12px;
+    }
+
+    #leftMenu .item:hover, #rightMenu .item:hover {
+      background-color: #f9f9f9;
+      color: #000;
+    }
+
+    #leftMenuToggle, #rightMenuToggle {
+      background-color: #fff;
+      border: 1px solid #ddd;
+      width: 16px;
+      height: 30px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    #leftMenuToggle {
+      right: -16px;
+      border-top-right-radius: 20%;
+      border-bottom-right-radius: 20%;
+    }
+
+    #rightMenuToggle {
+      left: -16px;
+      border-top-left-radius: 20%;
+      border-bottom-left-radius: 20%;
+    }
+
+    #leftMenuToggle i, #rightMenuToggle i {
+      color: #333;
+      font-size: 16px;
+      top: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 0;
+    }
+
+    #leftMenuToggle:hover, #rightMenuToggle:hover {
+      background-color: #e0e0e0;
+      cursor: pointer;
+    }
+
+    /* 
+    區域3 字體 區域起始
+    <weight>: Use a value from 100 to 900
        <uniquifier>: Use a unique and descriptive class name*/
     .noto-sans-300 {
       font-family: "Noto Sans", sans-serif;
@@ -65,20 +177,102 @@
       font-variation-settings:
         "wdth" 100;
     }
+
+    /* RWD: 根據螢幕viewport大小決定layout，一共分成四個範圍
+        範圍1: > 1200px (預設layout)
+        範圍2: < 1200px
+        範圍3: < 850px
+        範圍4: < 600px
+        注意: 這些範圍的作用是疊加的；舉例來說，當螢幕寬度小於850px時，會依照 範圍1 > 範圍2 > 範圍3 的順序來套用CSS樣式 */
+
+    /* 範圍2: < 1200px
+        在此範圍內，右選單會自動隱藏起來(可拉開)，筆記分頁標題與內文的字體大小會變小 */
+    @media (max-width: 1200px) {
+      /* 右選單預設收攏 */
+      #rightMenuWrapper {
+        transform: translateX(100%);
+      }
+
+      /* 字體大小調整 */
+      h1#thePageTitle {
+        font-size: 1.8rem;
+      }
+      .docx article div.ui.segment.level-2 p span{
+        font-size: 14pt !important;
+      }
+      .docx article div.ui.segment.level-3 p span{
+        font-size: 12pt !important;
+      }
+    }
+
+    /* 範圍3: < 850px
+        在此範圍內，左選單會自動隱藏起來(可拉開)，筆記分頁標題與內文的字體大小會變小 */
+    @media (max-width: 850px) {
+      /* 調整內文整體layout至合適大小 */
+      #container {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        margin: 0 auto;
+        padding: 1rem;
+        width: 100%;
+        box-sizing: border-box;
+        overflow-x: auto;
+      }
+      /* 允許內文水平滾動 */
+      .docx {
+        width: auto;
+        max-width: none;
+        margin: 0 auto;
+        overflow-x: auto;
+        display: block;
+        box-sizing: border-box;
+        white-space: nowrap;
+      }
+
+      /* 左選單預設收攏 */
+      #leftMenuWrapper {
+        transform: translateX(-100%);
+      }
+
+      /* 字體大小調整 */
+      h1#thePageTitle {
+        font-size: 1.5rem;
+      }
+      .docx article div.ui.segment.level-2 p span{
+        font-size: 12pt !important;
+      }
+      .docx article div.ui.segment.level-3 p span{
+        font-size: 10pt !important;
+      }
+    }
+
+    /* 範圍4: < 600px
+        在此範圍內，筆記分頁標題的字體大小會變小 */
+    @media (max-width: 600px) {
+      /* 字體大小調整 */
+      h1#thePageTitle {
+        font-size: 1.2rem;
+      }
+    }
   </style>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
     href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@100..900&family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap"
     rel="stylesheet">
+  <!--區域三 字體 區域結束-->
 </head>
 
 <body>
+  <!--區域四 主HTML 區域起始-->
+  <!--本區HTML概述，一個docx主容器，一個loader，在docx主容器尚未渲染完成前，UI轉轉轉-->
   <script>var docxready = false;</script>
   <div id="loader" class="ui active inverted dimmer full-page-loader">
     <div class="ui large text loader">Loading</div>
   </div>
   <div id="container" style="display: none;"></div>
+   <!--區域四 主HTML 區域結束            以下的部分不重要，真的不重要 一大段垃圾HTML 就是裝飾品          (區域:裝飾HTML 起始)                                   -->
   <div id="myFoot" class="ui  vertical footer segment" style="display: none;">
     <div class="ui center aligned container">
       <div class="ui stackable grid">
@@ -111,17 +305,21 @@
       </div>
     </div>
   </div>
+<!--  (區域:裝飾HTML 結束)       -->
+  
   <script>
     fetch('/docxView/其他科.docx')
       .then(response => response.blob())
       .then(blob => {
+        //這裡做一件事，onenote輸出整個筆記是整個章，沒分節，分節的方式用日期，所以就是英文日期中文日期regex
         var docData = blob;
         docx.renderAsync(docData, document.getElementById("container"))
-          .then(x => {
+          .then(x => {//docx 終於被載入了
             console.log("docx: finished");
             const docxElement = document.getElementsByClassName('docx')[0];
             const elements = Array.from(docxElement.querySelectorAll('*'));
             var rightMenu = '';
+            //這段就是要分節
             const pattern1 = /\d{4}年\d{1,2}月\d{1,2}日\s*[上下]午\s*\d{1,2}:\d{1,2}/;
             const pattern2 = /\b[^\(\)（）:\d\s]+,\s[^\(\)（）:\d\s]+\s\d{1,2},\s\d{4}\s*\d{1,2}:\d{1,2}\s[AP]M\b/;
             var hashIDX = 1;
@@ -131,12 +329,13 @@
               const nextSiblingText = el.nextSibling?.innerText || ''; // Handle missing nextSibling safely
               const line2_push = el.innerText + nextSiblingText;
 
-              if (pattern1.test(line2_push)) {
+              if (pattern1.test(line2_push)) {//每遇到一個節標題就存到右側目錄中
                 rightMenu += `<a class="item" href="#${hashIDX + 1}" onclick="if (event.target.tagName === 'A') {event.preventDefault(); window.location.href = event.target.href;  window.location.reload();  }">${el.previousSibling.innerText}</a>`;
                 hashIDX++;
                 el.style.display = 'none';
                 el.nextSibling.style.display = 'none';
-                if (hashIDX === currentStage3index) {
+                if (hashIDX === currentStage3index) {//然後非URL中的小節數就隱藏
+                  //順便抓大標
                   const h1 = document.createElement('h1');
                   h1.textContent = el.previousSibling.innerText;
                   h1.id = "thePageTitle";
@@ -157,6 +356,7 @@
                 }
               }
 
+              //這段跟剛剛那段一樣，只是一個抓英文一個抓中文
               if (pattern2.test(line2_push)) {
                 rightMenu += `<a class="item" href="#${hashIDX + 1}" onclick="if (event.target.tagName === 'A') {event.preventDefault(); window.location.href = event.target.href;  window.location.reload();  }">${el.previousSibling.innerText}</a>`;
                 hashIDX++;
@@ -184,26 +384,14 @@
               }
 
               if (hashIDX !== currentStage3index || (pattern1.test((el.nextSibling?.innerText || '') + (el.nextSibling?.nextSibling?.innerText || '')) || pattern2.test((el.nextSibling?.innerText || '') + (el.nextSibling?.nextSibling?.innerText || '')))) {
-                el.style.display = 'none';
+                el.style.display = 'none';//好，幹我忘記隱藏的邏輯到底是啥了，我道歉，前面不是隱藏過了這裡還要隱藏...by andy
               }
 
             }
-            document.getElementsByClassName('docx-wrapper')[0].classList.add('ui');
+            document.getElementsByClassName('docx-wrapper')[0].classList.add('ui');//這裡就開始套UI框架
             document.getElementsByClassName('docx-wrapper')[0].classList.add('segment');
-            fetchCategories().then(leftMenu => {
+            fetchCategories().then(leftMenu => {//然後這段加左右選單
               document.getElementsByClassName('docx-wrapper')[0].innerHTML = `
- <div class="ui left fixed vertical menu">
-  <div class="item">
-    <img class="ui mini image" src="https://upload.wikimedia.org/wikipedia/en/a/a9/Example.jpg">
-  </div>
-${leftMenu}
-</div>
-<div class="ui right fixed vertical menu">
-  <div class="item">
-    <img class="ui mini image" src="https://upload.wikimedia.org/wikipedia/en/a/a9/Example.jpg">
-  </div>
-  ${rightMenu}
-</div>
 <div class="ui top fixed menu">
   <div class="header item">Brand</div>
   <a class="active item">Link</a>
@@ -232,6 +420,28 @@ ${leftMenu}
     <a class="item">Link</a>
   </div>
 </div>
+<div class="ui vertical menu menu-wrapper" id="leftMenuWrapper" style="left: 0;">
+  <div class="ui left fixed vertical menu" id="leftMenu">
+    <div class="item">
+      <img class="ui mini image" src="https://upload.wikimedia.org/wikipedia/en/a/a9/Example.jpg">
+    </div>
+    ${leftMenu}
+  </div>
+  <div id="leftMenuToggle">
+    <i class="ui angle left icon"></i>
+  </div>
+</div>
+<div class="ui vertical menu menu-wrapper" id="rightMenuWrapper" style="right: 0;">
+  <div class="ui right fixed vertical menu" id="rightMenu">
+    <div class="item">
+      <img class="ui mini image" src="https://upload.wikimedia.org/wikipedia/en/a/a9/Example.jpg">
+    </div>
+    ${rightMenu}
+  </div>
+  <div id="rightMenuToggle">
+    <i class="ui angle right icon"></i>
+  </div>
+</div>
 <div class="ui bottom fixed menu">
   <div class="item">
     <img src="/images/logo.png">
@@ -240,13 +450,39 @@ ${leftMenu}
   <a class="item">Testimonials</a>
   <a class="item">Sign-in</a>
 </div>
-`+ hardfont(document.getElementsByClassName('docx-wrapper')[0].innerHTML);
-              docxready = true;
+`+ hardfont(document.getElementsByClassName('docx-wrapper')[0].innerHTML);//然後這段改字體
+            // 調整選單高度
+            adjustVerticalMenuTop();
+
+            // 讓選單可以收起來
+            const leftMenuWrapper = document.getElementById('leftMenuWrapper');
+            const rightMenuWrapper = document.getElementById('rightMenuWrapper');
+            const leftMenuToggle = document.getElementById('leftMenuToggle');
+            const rightMenuToggle = document.getElementById('rightMenuToggle');
+            setupMenuToggle(leftMenuWrapper, leftMenuToggle, 'left');
+            setupMenuToggle(rightMenuWrapper, rightMenuToggle, 'right');
+
+            // 調整內文位置
+            adjustDocxPosition();
+
+            // 設置點擊內文時收起選單的功能
+            const article = document.querySelector('.docx article');
+            article.addEventListener('click', () => {
+              if (window.innerWidth < 850 && leftMenuWrapper.style?.transform !== 'translateX(-100%)') {
+                  leftMenuToggle.click();
+              }
+              if (window.innerWidth < 1200 && rightMenuWrapper.style?.transform !== 'translateX(100%)') {
+                  rightMenuToggle.click();
+              }
+            });
+
+            docxready = true;
             });
           });
       })
       .catch(error => console.error('Error fetching the DOCX file:', error));
   </script>
+  <!--以下的套件引入供「docx後處裡」使用-->
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"
     integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.5.0/semantic.min.js"
@@ -255,7 +491,10 @@ ${leftMenu}
   <script src="https://cdn.datatables.net/2.2.2/js/dataTables.min.js" crossorigin="anonymous"
     referrerpolicy="no-referrer"></script>
 
+<!--這個分野很重要，以上，docx尚未完成載入，以下，docx完成載入。為甚麼這樣分是，如果原始資料不是docx是html應該就是跑下面就好，不需要分節(上面)的動作-->
+  
   <script>
+    //這裡直接看網址列#後面的數字決定要載入哪個寫小節
     var currentStage3index = -1;
     $(document).ready(function () {
       currentStage3index = parseInt(window.location.hash.substring(1));
@@ -263,15 +502,17 @@ ${leftMenu}
         currentStage3index = 1;
       }
     });
-    function checkVariable() {
+    //這裡是docx載入後的修改區域
+    function checkVariable() {//所以這裡才是重中之重，其他都不重要
       if (docxready) {
-        document.getElementById('loader').style.display = 'none';
+        document.getElementById('loader').style.display = 'none';//隱藏loader
         document.getElementById('container').style.display = 'block';
         document.getElementById('myFoot').style.display = 'block';
 
         //!important! function card
         const docxElement = document.getElementsByClassName('docx')[0].children[0];
         if (docxElement) {
+          //對於所有階層，的左側偏移量，由小到大排序
           const paragraphs = Array.from(docxElement.children);
           const margins = paragraphs.map(p => {
             if (p.style.display === 'none') {
@@ -283,30 +524,22 @@ ${leftMenu}
               return parseFloat(p.style.marginLeft) || 0; // Use hard-coded margin or default to 0
             }
           });
-          //console.log(margins);
 
           // Find the third smallest unique margin value
           const uniqueMargins = [...new Set(margins)].sort((a, b) => b - a);//a - b);
-          /*var JZDobj = { level: 0, name: document.getElementById('thePageTitle').innerText, UMary: [] };
-          uniqueMargins.forEach((margin, index) => {
-            JZDobj.UMary.push({ level: index, Mval: margin, domARY: [] });
-          });*/
 
+          //由最大的偏移量開始(由輩份最小的巢狀AKA最深的巢狀開始)一直執行到最淺的巢狀(最小的偏移量)
           uniqueMargins.forEach((m0o0, i0o0) => {
             console.log(`執行層${m0o0}`);
             if (m0o0 !== 0) {
               const targetTab = uniqueMargins[i0o0];//1];
-              //console.log(targetTab);
-              //console.log(targetTab);
 
               let isOpen = false;
               let currentDiv = null;
 
-              //var JZDid = 0;
-              //var prevJZDid = 0;
               Array.from(document.getElementsByClassName('docx')[0].children[0].children).forEach(p => {
-
-                if (p.innerText &&//p.style.display !== 'none' && 
+//略過純空白的DOM
+                if (p.innerText &&
                   p.innerText.trim() !== "" &&
                   p.innerText !== "\n" &&
                   p.innerText !== "\r\n" &&
@@ -314,7 +547,7 @@ ${leftMenu}
                   p.innerText !== "\t" &&
                   !/^[\u3000\u00A0]+$/.test(p.innerText)
                 ) {
-
+//這裡是個有限狀態機，當遇到的DOM的階層數符合所需時，轉移狀態
                   function Tt(int2or3) {
                     if (p.onml && parseFloat(p.onml)) {
 
@@ -334,9 +567,7 @@ ${leftMenu}
                   }
 
                   if (isOpen) {
-                    //console.log('狀態:已開啟');
                     if (Tt(3) === 't') {
-                      //console.log(`%c 狀態:符合目標${p.innerText}`, 'background: #222; color: #bada55');
                       //另存新檔
                       isOpen = false;
                       currentDiv = null;
@@ -348,37 +579,29 @@ ${leftMenu}
                       currentDiv.appendChild(p);
                       p.onml=-1;
                     } else if (Tt(3) === 'f') {
-                      //console.log('狀態:不符合目標');
                       //存檔關閉
                       if (p.style.display === 'none') {
-                        //console.log('存檔關閉:1');
                         isOpen = false;
                         currentDiv = null;
                       } else if (!parseFloat(p.onml)) {
                         //寫入
-                        //console.log('存檔關閉:2');
                         currentDiv.appendChild(p);
                         p.onml=-1;
                       }else if (parseFloat(p.onml)===-1) {
                         //別動
                       } else {
-                        //console.log('存檔關閉:3');
                         //這裡邏輯糊塗了
-                        //currentDiv.appendChild(p);
                         isOpen = false;
                         currentDiv = null;
                       }
                     } else if (Tt(3) === 's') {
-                      //console.log('%c 狀態:子目標', 'background: #222; color: #bada55');
                       //寫入
                       currentDiv.appendChild(p);
                       p.onml=-1;
                     } else { console.error('must be t or f or s'); }
                   } else {
-                    //console.log('狀態:未開啟');
                     //開新檔案
                     if (Tt(2) === 't') {
-                      //console.log(`%c 狀態:符合目標${p.innerText}\n level-${uniqueMargins.length - i0o0} debugMG-${targetTab}`, 'background: #222; color: #bada55');
                       currentDiv = document.createElement('div');
                       currentDiv.onml = m0o0;
                       currentDiv.className = `ui segment level-${uniqueMargins.length - i0o0} debugMG-${targetTab}`;
@@ -387,82 +610,28 @@ ${leftMenu}
                       currentDiv.appendChild(p);
                       p.onml=-1;
                     } else if (Tt(2) === 'f') {
-                      //console.log('狀態:不符合目標');
                       //維持狀態
                     } else { console.error('must be t or f'); }
                   }
-
-
-
-
-
-
-
-
-
-
-
-
-
-                  /*
-                  JZDid++;
-                  if (parseFloat(p.style.marginLeft)) {
-                    JZDobj.UMary.forEach((item, index) => {
-                      if (Math.abs(item.Mval - parseFloat(p.style.marginLeft)) < 1) {
-                        JZDobj.UMary[index].domARY.push({ id: JZDid, innerText: p.innerHTML, prevID: prevJZDid });
-                      }
-                    });
-                  } else {
-                    //JZDobj.UMary last,  .domARY push {innertext id prevID}
-                    JZDobj.UMary[JZDobj.UMary.length - 1].domARY.push({ id: JZDid, innerText: p.innerHTML, prevID: prevJZDid });
-                  }
-                  prevJZDid = JZDid;
-                }*/
-
-                  // if (parseFloat(p.style.marginLeft) && parseFloat(p.style.marginLeft) && (Math.abs(parseFloat(p.style.marginLeft) - targetTab) < 1||parseFloat(p.style.marginLeft) < targetTab)) {
-                  //   if (p.style.display !== 'none'&&parseFloat(p.style.marginLeft) > targetTab) {
-                  //     p.classList.add(`debug-${uniqueMargins.length - i0o0}-${targetTab}`);
-                  // if (!isOpen) {
-                  //   // Open a new segment
-                  //   currentDiv = document.createElement('div');
-                  //   currentDiv.className = `ui segment level-${uniqueMargins.length - i0o0}-${targetTab}`;
-                  //   p.parentNode.insertBefore(currentDiv, p);
-                  //   isOpen = true;
-                  //   currentDiv.appendChild(p);
-                  // } else {
-                  //   isOpen = false;
-                  //   currentDiv = null;
-                  //   currentDiv = document.createElement('div');
-                  //   currentDiv.className = `ui segment level-${uniqueMargins.length - i0o0}-${targetTab}`;
-                  //   p.parentNode.insertBefore(currentDiv, p);
-                  //   isOpen = true;
-                  //   currentDiv.appendChild(p);
-                  // }
-                  // } else {
-                  // isOpen = false;
-                  // currentDiv = null;
-                  //   }
-                  // } else {
-                  // if (isOpen) {
-                  //   currentDiv.appendChild(p);
-                  // }
-                  // }
                 }
               });
             }
-            //console.log(JZDobj);
-            //console.log(paragraphs);
           });
         } else {
           console.log('No element with class "docx" found.');
         }
 
+//以上的程式碼是在搞巢狀的
+        
         //!important! give me come color
         const docxElement_main = document.getElementsByClassName('docx')[0];
         docxElement_main.style.backgroundColor = '#f2f2f2';
         docxElement.style.backgroundColor = '#f2f2f2';
         document.getElementsByClassName('docx-wrapper')[0].style.backgroundColor = '#bfbfbf';
+        //上面顏色這個應該是調甚麼背景色
 
+//以下的程式碼是在優化table的(反正表格區是AI寫的，直接整段丟AI解釋就好我不註解，https://docs.google.com/document/d/e/2PACX-1vR4b9y8lUdHSrgmrB_bhfBHG_02bZlWq8pYVeQ1wdUushVCDdOrNB2TubMx5mxGZ5yAQgjI3j1s2cC6/pub)
+        
         //table
         function upgradeTables() {
           document.querySelectorAll("table").forEach(table => {
@@ -527,14 +696,13 @@ ${leftMenu}
       }
     }
 
-    // Start checking the variable
+    // 在整個docx load完成後，會進入後期的編修
     checkVariable();
-
-
   </script>
   <script>
-    function hardfont(x) {
-      if (false) { return x; } else {
+    //區域[函式](區域起始)
+    function hardfont(x) {//目標:把google的字加到微軟的字前面，這裡是因為onedrive自帶字體設定硬寫在html中
+      if (false) { return x; } else {//TODO喔喔是想說如果客戶不要用google字體，可以這裡關掉，應該要用成設定檔之類的
         const fontFamilyRegex = /font-family\s*:\s*([^;]+);/gi;
 
         return x.replace(fontFamilyRegex, (match, p1) => {
@@ -542,7 +710,7 @@ ${leftMenu}
         });
       }
     }
-    async function fetchCategories() {
+    async function fetchCategories() {//添加左側選單(吃一個json，在github中)
       try {
         const response = await fetch('/l1toc.json');
         if (!response.ok) {
@@ -555,9 +723,95 @@ ${leftMenu}
       }
     }
 
+    function adjustVerticalMenuTop() {
+      // 自動調整選單高度(top)
+      const topMenu = document.querySelector('.ui.top.fixed.menu');
+      const verticalMenuWrappers = document.querySelectorAll('.ui.vertical.menu.menu-wrapper');
+      
+      if (!verticalMenuWrappers.length) {
+        console.error('No vertical menu wrappers found: ', verticalMenuWrappers);
+        return;
+      }
+
+      // Get the heights of the top menu
+      let topMenuHeight = (topMenu?.offsetHeight) && (topMenu.offsetHeight !== 0) ? topMenu.offsetHeight : 48;
+
+      // Set the top margin of the verticalMenuWrapper
+      verticalMenuWrappers.forEach(el => {
+        el.style.marginTop = `${topMenuHeight}px`;
+      });
+    }
+
+    function setupMenuToggle(menuElement, toggleButton, direction) {
+      //選單收合功能
+      if (!menuElement || !toggleButton) {
+        console.error('Menu element or toggle button not found.');
+        return;
+      }
+
+      let isMenuVisible = true;
+      if (window.innerWidth <= 850) {
+        isMenuVisible = false;
+      } else if (window.innerWidth <= 1200) {
+        isMenuVisible = direction === 'left';
+      }
+
+      if (!isMenuVisible) {
+        toggleButton.innerHTML = `<i class="ui angle ${direction === 'left' ? 'right' : 'left'} icon"></i>`;
+      }
+
+      toggleButton.addEventListener('click', () => {
+        if (isMenuVisible) {
+          menuElement.style.transform = `translateX(${direction === 'left' ? '-100%' : '100%'})`;
+          toggleButton.innerHTML = `<i class="ui angle ${direction === 'left' ? 'right' : 'left'} icon"></i>`;
+        } else {
+          menuElement.style.transform = 'translateX(0)';
+          toggleButton.innerHTML = `<i class="ui angle ${direction === 'left' ? 'left' : 'right'} icon"></i>`;
+        }
+        isMenuVisible = !isMenuVisible;
+        adjustDocxPosition();
+      });
+    }
+
+    function adjustDocxPosition() {
+      //調整內文位置
+      const docxContainer = document.getElementsByClassName('docx')[0];
+      const leftMenuWrapper = document.getElementById('leftMenuWrapper');
+      const rightMenuWrapper = document.getElementById('rightMenuWrapper');
+      if (!docxContainer || !leftMenuWrapper || !rightMenuWrapper) {
+        console.log('docx, leftMenuWrapper, or rightMenuWrapper have not loaded yet.');
+        // Retry after a short delay
+        setTimeout(adjustDocxPosition, 100);
+        return;
+      }
+
+      if (window.innerWidth < 850) {
+        // Reset the margin when the viewport is smaller than 850px
+        docxContainer.style.marginLeft = '0px';
+        return;
+      }
+      
+      if (window.innerWidth < 1200){
+        // 只在viewport在850~1200才調整內文位置
+        if (rightMenuWrapper.style?.transform !== 'translateX(0)' && leftMenuWrapper.style?.transform !== 'translateX(-100%)') {
+          let leftMenuWidth = leftMenuWrapper.style.transform === 'translateX(-100%)' ? 0 : leftMenuWrapper.offsetWidth;
+          let rightMenuWidth = rightMenuWrapper.style.transform === 'translateX(100%)' ? 0 : rightMenuWrapper.offsetWidth;
+          // Calculate the available width and center the docx container
+          let availableWidth = window.innerWidth - leftMenuWidth - rightMenuWidth;
+          let docxMarginLeft = leftMenuWidth + availableWidth / 2 - docxContainer.offsetWidth / 2;
+
+          // Apply the calculated margin to center the docx container
+          docxContainer.style.marginLeft = `${Math.min(docxMarginLeft, leftMenuWidth)}px`;
+        } else {
+          // Reset the margin when the right menu is visible
+          docxContainer.style.marginLeft = '0px';
+        }
+      }
+    }
+
+    // Call the function on window resize
+    window.addEventListener('resize', adjustVerticalMenuTop);
+    //區域[函式](區域結束)
   </script>
-
-
 </body>
-
 </html>
