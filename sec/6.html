@@ -26,6 +26,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.5.0/components/table.min.css"
     integrity="sha512-LO7R36eoQTR8mctOTFrAUUGCBiqbouo0mzi5dicyVrW76ECJSI4leeTh3PIX4Hp+09++NA3TVFPRg/0C7viORA=="
     crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.5.0/components/dropdown.min.css" integrity="sha512-tdyzfjYDk2OR9L10jvzzuGUB0Rvl5fyMW/Z8yfbYyyENfuXxtcDtEq7d/PdiA0hzQzXjWwvZasjEp8Joli2tkw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <!--區域1 反正就叫一堆CSS (區域結束)-->
   <style>
     .full-page-loader {
@@ -39,6 +40,11 @@
       justify-content: center;
       align-items: center;
       z-index: 9999;
+    }
+
+    /* Add cursor pointer style for the landing page button */
+    #button_back_to_landing_page {
+      cursor: pointer;
     }
 
     .dt-container {
@@ -393,20 +399,20 @@
             fetchCategories().then(leftMenu => {//然後這段加左右選單
               document.getElementsByClassName('docx-wrapper')[0].innerHTML = `
 <div class="ui top fixed menu">
-  <div class="header item">Brand</div>
+  <div class="header item" onclick="window.location.href='https://diagmindtw.com/'" id="button_back_to_landing_page">diagmindtw</div>
   <a class="active item">Link</a>
   <a class="item">Link</a>
   <div class="ui dropdown item" tabindex="0">
-    Dropdown
+    工程模式(這個按鈕在部屬到生產環境時要移除)
     <i class="dropdown icon"></i>
     <div class="menu" tabindex="-1">
-      <div class="item">Action</div>
-      <div class="item">Another Action</div>
-      <div class="item">Something else here</div>
+      <div class="item" id="DEVgenJSON" onclick="document_getElementById_DEVgenJSON_addEventListener_click_function()">生成(並下載)JSON</div>
       <div class="divider"></div>
-      <div class="item">Separated Link</div>
+      <div class="item" id="DEVviewJSON" onclick="document_getElementById_DEVviewJSON_addEventListener_click_function()"> (生成並)檢視JSON</div>
+      <!--document_getElementById_DEVdownloadMarkdown_addEventListener_click_function-->
       <div class="divider"></div>
-      <div class="item">One more separated link</div>
+      <div class="item" id="DEVdownloadMarkdown" onclick="document_getElementById_DEVdownloadMarkdown_addEventListener_click_function()"> 下載Markdown</div>
+      
     </div>
   </div>
   <div class="right menu">
@@ -422,9 +428,6 @@
 </div>
 <div class="ui vertical menu menu-wrapper" id="leftMenuWrapper" style="left: 0;">
   <div class="ui left fixed vertical menu" id="leftMenu">
-    <div class="item">
-      <img class="ui mini image" src="https://upload.wikimedia.org/wikipedia/en/a/a9/Example.jpg">
-    </div>
     ${leftMenu}
   </div>
   <div id="leftMenuToggle">
@@ -433,9 +436,6 @@
 </div>
 <div class="ui vertical menu menu-wrapper" id="rightMenuWrapper" style="right: 0;">
   <div class="ui right fixed vertical menu" id="rightMenu">
-    <div class="item">
-      <img class="ui mini image" src="https://upload.wikimedia.org/wikipedia/en/a/a9/Example.jpg">
-    </div>
     ${rightMenu}
   </div>
   <div id="rightMenuToggle">
@@ -490,6 +490,8 @@
     crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script src="https://cdn.datatables.net/2.2.2/js/dataTables.min.js" crossorigin="anonymous"
     referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.5.0/components/dropdown.min.js" integrity="sha512-PD2QRjH0s7TFz8Oicpi4UFJBdKP0vFeYpmNPsEoNDHfG3QcGLTs8XUrkXWEQXX2Q0g+1oEwvow27TM2VfPdTxw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="../public/utli/nest2json.js"></script>
 
 <!--這個分野很重要，以上，docx尚未完成載入，以下，docx完成載入。為甚麼這樣分是，如果原始資料不是docx是html應該就是跑下面就好，不需要分節(上面)的動作-->
   
@@ -690,6 +692,8 @@
             console.log(error);
           }
         }
+
+        $('.ui.dropdown').dropdown();
 
       } else {
         setTimeout(checkVariable, 100);
