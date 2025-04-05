@@ -393,7 +393,7 @@
             fetchCategories().then(leftMenu => {//然後這段加左右選單
               document.getElementsByClassName('docx-wrapper')[0].innerHTML = `
 <div class="ui top fixed menu">
-  <div class="header item">Brand</div>
+  <div class="header item" onclick="window.location.href='https://diagmindtw.com/'" id="button_back_to_landing_page">diagmindtw</div>
   <a class="active item">Link</a>
   <a class="item">Link</a>
   <div class="ui dropdown item" tabindex="0">
