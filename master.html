@@ -17,8 +17,10 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.5.0/components/rail.min.css"
     integrity="sha512-5otZXyOy1WoHVUtIkCWTouUsd4FATLQxdn0iNNhwdi+Fsrfr2mZZf0nf8YyYJhhHQcHVhPsbCY3TvqfrmxURwQ=="
     crossorigin="anonymous" referrerpolicy="no-referrer" />
-  <script src="https://unpkg.com/jszip/dist/jszip.min.js"></script>
-  <script src="https://unpkg.com/docx-preview/dist/docx-preview.min.js"></script>
+  <!-- <script src="https://unpkg.com/jszip/dist/jszip.min.js"></script> -->
+  <script src="./public/js/jszip.min.js"></script>
+  <!-- <script src="https://unpkg.com/docx-preview/dist/docx-preview.min.js"></script> -->
+  <script src="./public/js/docx-preview.min.js"></script>
   <link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.dataTables.min.css"
     crossorigin="anonymous" referrerpolicy="no-referrer" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.5.0/components/table.min.css"
@@ -54,7 +56,113 @@
       /*margin-left: 1vw;*/
       position: relative;
       left: -120px;
+    }
 
+    /* 讓標題可以水平滾動 */
+    h1#thePageTitle {
+      max-width: 100%;
+      overflow-x: auto;
+      /* Hide scrollbar for Chrome, Safari and IE */
+      -ms-overflow-style: none;  /* Internet Explorer 10+ */
+      scrollbar-width: none;  /* Firefox */
+    }
+
+    h1#thePageTitle::-webkit-scrollbar {
+        display: none;  /* Safari and Chrome */
+    }
+
+    /*選單收合功能*/
+    /* Menu Wrapper */
+    .menu-wrapper {
+      position: fixed;
+      top: 0;
+      height: 100%;
+      width: auto;
+      z-index: 100;
+      background: none;
+      border: none;
+      overflow: visible;
+    }
+
+    #leftMenuWrapper {
+      transform: translateX(0);
+      transition: transform 0.3s ease;
+    }
+
+    #rightMenuWrapper {
+      transform: translateX(0);
+      transition: transform 0.3s ease;
+    }
+
+    /* 1. Restore Semantic UI Menu Item Styles
+       2. Enable vertically scrolling */
+    #leftMenu, #rightMenu {
+      position: absolute;
+      overflow-y: auto;
+      max-height: 100%;
+      transition: transform 0.3s ease;
+    }
+
+    #leftMenu .item, #rightMenu .item {
+      font-weight: 400;
+      color: #333;
+      border-bottom: 1px solid #ddd;
+    }
+
+    #leftMenu .item {
+      padding: 1em 14px;
+      font-size: 14px;
+    }
+
+    #rightMenu .item {
+      padding: .8em 12px;
+      font-size: 12px;
+    }
+
+    #leftMenu .item:hover, #rightMenu .item:hover {
+      background-color: #f9f9f9;
+      color: #000;
+    }
+
+    #leftMenuToggle, #rightMenuToggle {
+      background-color: #fff;
+      border: 1px solid #ddd;
+      width: 16px;
+      height: 30px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    #leftMenuToggle {
+      right: -16px;
+      border-top-right-radius: 20%;
+      border-bottom-right-radius: 20%;
+    }
+
+    #rightMenuToggle {
+      left: -16px;
+      border-top-left-radius: 20%;
+      border-bottom-left-radius: 20%;
+    }
+
+    #leftMenuToggle i, #rightMenuToggle i {
+      color: #333;
+      font-size: 16px;
+      top: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 0;
+    }
+
+    #leftMenuToggle:hover, #rightMenuToggle:hover {
+      background-color: #e0e0e0;
+      cursor: pointer;
     }
 
     /* 
@@ -68,6 +176,84 @@
       font-style: normal;
       font-variation-settings:
         "wdth" 100;
+    }
+
+    /* RWD: 根據螢幕viewport大小決定layout，一共分成四個範圍
+        範圍1: > 1200px (預設layout)
+        範圍2: < 1200px
+        範圍3: < 850px
+        範圍4: < 600px
+        注意: 這些範圍的作用是疊加的；舉例來說，當螢幕寬度小於850px時，會依照 範圍1 > 範圍2 > 範圍3 的順序來套用CSS樣式 */
+
+    /* 範圍2: < 1200px
+        在此範圍內，右選單會自動隱藏起來(可拉開)，筆記分頁標題與內文的字體大小會變小 */
+    @media (max-width: 1200px) {
+      /* 右選單預設收攏 */
+      #rightMenuWrapper {
+        transform: translateX(100%);
+      }
+
+      /* 字體大小調整 */
+      h1#thePageTitle {
+        font-size: 1.8rem;
+      }
+      .docx article div.ui.segment.level-2 p span{
+        font-size: 14pt !important;
+      }
+      .docx article div.ui.segment.level-3 p span{
+        font-size: 12pt !important;
+      }
+    }
+
+    /* 範圍3: < 850px
+        在此範圍內，左選單會自動隱藏起來(可拉開)，筆記分頁標題與內文的字體大小會變小 */
+    @media (max-width: 850px) {
+      /* 調整內文整體layout至合適大小 */
+      #container {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        margin: 0 auto;
+        padding: 1rem;
+        width: 100%;
+        box-sizing: border-box;
+        overflow-x: auto;
+      }
+      /* 允許內文水平滾動 */
+      .docx {
+        width: auto;
+        max-width: none;
+        margin: 0 auto;
+        overflow-x: auto;
+        display: block;
+        box-sizing: border-box;
+        white-space: nowrap;
+      }
+
+      /* 左選單預設收攏 */
+      #leftMenuWrapper {
+        transform: translateX(-100%);
+      }
+
+      /* 字體大小調整 */
+      h1#thePageTitle {
+        font-size: 1.5rem;
+      }
+      .docx article div.ui.segment.level-2 p span{
+        font-size: 12pt !important;
+      }
+      .docx article div.ui.segment.level-3 p span{
+        font-size: 10pt !important;
+      }
+    }
+
+    /* 範圍4: < 600px
+        在此範圍內，筆記分頁標題的字體大小會變小 */
+    @media (max-width: 600px) {
+      /* 字體大小調整 */
+      h1#thePageTitle {
+        font-size: 1.2rem;
+      }
     }
   </style>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -206,18 +392,6 @@
             document.getElementsByClassName('docx-wrapper')[0].classList.add('segment');
             fetchCategories().then(leftMenu => {//然後這段加左右選單
               document.getElementsByClassName('docx-wrapper')[0].innerHTML = `
- <div class="ui left fixed vertical menu">
-  <div class="item">
-    <img class="ui mini image" src="https://upload.wikimedia.org/wikipedia/en/a/a9/Example.jpg">
-  </div>
-${leftMenu}
-</div>
-<div class="ui right fixed vertical menu">
-  <div class="item">
-    <img class="ui mini image" src="https://upload.wikimedia.org/wikipedia/en/a/a9/Example.jpg">
-  </div>
-  ${rightMenu}
-</div>
 <div class="ui top fixed menu">
   <div class="header item">Brand</div>
   <a class="active item">Link</a>
@@ -246,6 +420,28 @@ ${leftMenu}
     <a class="item">Link</a>
   </div>
 </div>
+<div class="ui vertical menu menu-wrapper" id="leftMenuWrapper" style="left: 0;">
+  <div class="ui left fixed vertical menu" id="leftMenu">
+    <div class="item">
+      <img class="ui mini image" src="https://upload.wikimedia.org/wikipedia/en/a/a9/Example.jpg">
+    </div>
+    ${leftMenu}
+  </div>
+  <div id="leftMenuToggle">
+    <i class="ui angle left icon"></i>
+  </div>
+</div>
+<div class="ui vertical menu menu-wrapper" id="rightMenuWrapper" style="right: 0;">
+  <div class="ui right fixed vertical menu" id="rightMenu">
+    <div class="item">
+      <img class="ui mini image" src="https://upload.wikimedia.org/wikipedia/en/a/a9/Example.jpg">
+    </div>
+    ${rightMenu}
+  </div>
+  <div id="rightMenuToggle">
+    <i class="ui angle right icon"></i>
+  </div>
+</div>
 <div class="ui bottom fixed menu">
   <div class="item">
     <img src="/images/logo.png">
@@ -255,7 +451,32 @@ ${leftMenu}
   <a class="item">Sign-in</a>
 </div>
 `+ hardfont(document.getElementsByClassName('docx-wrapper')[0].innerHTML);//然後這段改字體
-              docxready = true;
+            // 調整選單高度
+            adjustVerticalMenuTop();
+
+            // 讓選單可以收起來
+            const leftMenuWrapper = document.getElementById('leftMenuWrapper');
+            const rightMenuWrapper = document.getElementById('rightMenuWrapper');
+            const leftMenuToggle = document.getElementById('leftMenuToggle');
+            const rightMenuToggle = document.getElementById('rightMenuToggle');
+            setupMenuToggle(leftMenuWrapper, leftMenuToggle, 'left');
+            setupMenuToggle(rightMenuWrapper, rightMenuToggle, 'right');
+
+            // 調整內文位置
+            adjustDocxPosition();
+
+            // 設置點擊內文時收起選單的功能
+            const article = document.querySelector('.docx article');
+            article.addEventListener('click', () => {
+              if (window.innerWidth < 850 && leftMenuWrapper.style?.transform !== 'translateX(-100%)') {
+                  leftMenuToggle.click();
+              }
+              if (window.innerWidth < 1200 && rightMenuWrapper.style?.transform !== 'translateX(100%)') {
+                  rightMenuToggle.click();
+              }
+            });
+
+            docxready = true;
             });
           });
       })
@@ -501,6 +722,95 @@ ${leftMenu}
         console.error('There has been a problem with your fetch operation:', error);
       }
     }
+
+    function adjustVerticalMenuTop() {
+      // 自動調整選單高度(top)
+      const topMenu = document.querySelector('.ui.top.fixed.menu');
+      const verticalMenuWrappers = document.querySelectorAll('.ui.vertical.menu.menu-wrapper');
+      
+      if (!verticalMenuWrappers.length) {
+        console.error('No vertical menu wrappers found: ', verticalMenuWrappers);
+        return;
+      }
+
+      // Get the heights of the top menu
+      let topMenuHeight = (topMenu?.offsetHeight) && (topMenu.offsetHeight !== 0) ? topMenu.offsetHeight : 48;
+
+      // Set the top margin of the verticalMenuWrapper
+      verticalMenuWrappers.forEach(el => {
+        el.style.marginTop = `${topMenuHeight}px`;
+      });
+    }
+
+    function setupMenuToggle(menuElement, toggleButton, direction) {
+      //選單收合功能
+      if (!menuElement || !toggleButton) {
+        console.error('Menu element or toggle button not found.');
+        return;
+      }
+
+      let isMenuVisible = true;
+      if (window.innerWidth <= 850) {
+        isMenuVisible = false;
+      } else if (window.innerWidth <= 1200) {
+        isMenuVisible = direction === 'left';
+      }
+
+      if (!isMenuVisible) {
+        toggleButton.innerHTML = `<i class="ui angle ${direction === 'left' ? 'right' : 'left'} icon"></i>`;
+      }
+
+      toggleButton.addEventListener('click', () => {
+        if (isMenuVisible) {
+          menuElement.style.transform = `translateX(${direction === 'left' ? '-100%' : '100%'})`;
+          toggleButton.innerHTML = `<i class="ui angle ${direction === 'left' ? 'right' : 'left'} icon"></i>`;
+        } else {
+          menuElement.style.transform = 'translateX(0)';
+          toggleButton.innerHTML = `<i class="ui angle ${direction === 'left' ? 'left' : 'right'} icon"></i>`;
+        }
+        isMenuVisible = !isMenuVisible;
+        adjustDocxPosition();
+      });
+    }
+
+    function adjustDocxPosition() {
+      //調整內文位置
+      const docxContainer = document.getElementsByClassName('docx')[0];
+      const leftMenuWrapper = document.getElementById('leftMenuWrapper');
+      const rightMenuWrapper = document.getElementById('rightMenuWrapper');
+      if (!docxContainer || !leftMenuWrapper || !rightMenuWrapper) {
+        console.log('docx, leftMenuWrapper, or rightMenuWrapper have not loaded yet.');
+        // Retry after a short delay
+        setTimeout(adjustDocxPosition, 100);
+        return;
+      }
+
+      if (window.innerWidth < 850) {
+        // Reset the margin when the viewport is smaller than 850px
+        docxContainer.style.marginLeft = '0px';
+        return;
+      }
+      
+      if (window.innerWidth < 1200){
+        // 只在viewport在850~1200才調整內文位置
+        if (rightMenuWrapper.style?.transform !== 'translateX(0)' && leftMenuWrapper.style?.transform !== 'translateX(-100%)') {
+          let leftMenuWidth = leftMenuWrapper.style.transform === 'translateX(-100%)' ? 0 : leftMenuWrapper.offsetWidth;
+          let rightMenuWidth = rightMenuWrapper.style.transform === 'translateX(100%)' ? 0 : rightMenuWrapper.offsetWidth;
+          // Calculate the available width and center the docx container
+          let availableWidth = window.innerWidth - leftMenuWidth - rightMenuWidth;
+          let docxMarginLeft = leftMenuWidth + availableWidth / 2 - docxContainer.offsetWidth / 2;
+
+          // Apply the calculated margin to center the docx container
+          docxContainer.style.marginLeft = `${Math.min(docxMarginLeft, leftMenuWidth)}px`;
+        } else {
+          // Reset the margin when the right menu is visible
+          docxContainer.style.marginLeft = '0px';
+        }
+      }
+    }
+
+    // Call the function on window resize
+    window.addEventListener('resize', adjustVerticalMenuTop);
     //區域[函式](區域結束)
   </script>
 </body>
