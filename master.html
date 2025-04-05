@@ -26,6 +26,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.5.0/components/table.min.css"
     integrity="sha512-LO7R36eoQTR8mctOTFrAUUGCBiqbouo0mzi5dicyVrW76ECJSI4leeTh3PIX4Hp+09++NA3TVFPRg/0C7viORA=="
     crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.5.0/components/dropdown.min.css" integrity="sha512-tdyzfjYDk2OR9L10jvzzuGUB0Rvl5fyMW/Z8yfbYyyENfuXxtcDtEq7d/PdiA0hzQzXjWwvZasjEp8Joli2tkw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <!--區域1 反正就叫一堆CSS (區域結束)-->
   <style>
     .full-page-loader {
@@ -402,14 +403,10 @@
   <a class="active item">Link</a>
   <a class="item">Link</a>
   <div class="ui dropdown item" tabindex="0">
-    Dropdown
+    工程模式(這個按鈕在部屬到生產環境時要移除)
     <i class="dropdown icon"></i>
     <div class="menu" tabindex="-1">
-      <div class="item">Action</div>
-      <div class="item">Another Action</div>
-      <div class="item">Something else here</div>
-      <div class="divider"></div>
-      <div class="item">Separated Link</div>
+      <div class="item" id="DEVgenJSON">生成JSON</div>
       <div class="divider"></div>
       <div class="item">One more separated link</div>
     </div>
@@ -475,6 +472,72 @@
               }
             });
 
+            // 生成JSON的功能
+            document.getElementById('DEVgenJSON').addEventListener('click', function() {
+              // 獲取頁面資訊
+              const pageUrl = window.location.href;
+              const pageTitle = document.getElementById('thePageTitle')?.textContent || '';
+              
+              // 遞迴函式來創建巢狀的文檔樹結構
+              function buildDocTree(element) {
+                // 確保只處理可見的段落
+                if (!element || getComputedStyle(element).display === 'none') {
+                  return null;
+                }
+                
+                // 創建當前節點的基本資訊
+                const nodeInfo = {
+                  DOMnodeID: Math.random().toString(36).substr(2, 9), // 生成隨機ID
+                  DOMnodeClass: element.className,
+                  DOMinnerText: element.innerText.trim(),
+                  DOMfirstChildInnerText: element.firstChild?.innerText?.trim() || '',
+                  DOMinnerHtml: element.innerHTML.trim(),
+                  DOMattributes: Array.from(element.attributes).map(attr => ({ name: attr.name, value: attr.value }))
+                };
+                
+                // 找出所有子元素，這裡僅處理 .ui.segment 元素
+                const childSegments = Array.from(element.querySelectorAll(':scope > .ui.segment'));//TODO:我不確定這裡不吃P會不會有問題
+                
+                if (childSegments.length > 0) {
+                  nodeInfo.DOMchildArray = childSegments
+                    .map(buildDocTree)
+                    .filter(item => item !== null);
+                }
+                
+                return nodeInfo;
+              }
+              
+              // 獲取所有最上層的可見段落
+              const docxWrapper = document.querySelector('.docx-wrapper.ui.segment');
+              const topLevelSegments = Array.from(docxWrapper.querySelectorAll('.level-2'));
+              
+              // 構建文檔樹
+              const docTree = topLevelSegments
+                .map(buildDocTree)
+                .filter(item => item !== null);
+              
+              // 建立最終的JSON物件
+              const jsonResult = {
+                pageUrl: pageUrl,
+                pageH1: pageTitle,
+                docTree: docTree
+              };
+              
+              // 將JSON物件轉換為字串並下載
+              const jsonString = JSON.stringify(jsonResult, null, 2);
+              const blob = new Blob([jsonString], { type: 'application/json' });
+              const url = URL.createObjectURL(blob);
+              
+              // 創建下載連結並點擊觸發下載
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = 'document_structure.json';
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+              URL.revokeObjectURL(url);
+            });
+
             docxready = true;
             });
           });
@@ -489,6 +552,7 @@
     crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script src="https://cdn.datatables.net/2.2.2/js/dataTables.min.js" crossorigin="anonymous"
     referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.5.0/components/dropdown.min.js" integrity="sha512-PD2QRjH0s7TFz8Oicpi4UFJBdKP0vFeYpmNPsEoNDHfG3QcGLTs8XUrkXWEQXX2Q0g+1oEwvow27TM2VfPdTxw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 <!--這個分野很重要，以上，docx尚未完成載入，以下，docx完成載入。為甚麼這樣分是，如果原始資料不是docx是html應該就是跑下面就好，不需要分節(上面)的動作-->
   
@@ -689,6 +753,8 @@
             console.log(error);
           }
         }
+
+        $('.ui.dropdown').dropdown();
 
       } else {
         setTimeout(checkVariable, 100);
