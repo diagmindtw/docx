@@ -730,6 +730,7 @@
     function adjustVerticalMenuTop() {
       // 自動調整選單高度(top)
       const topMenu = document.querySelector('.ui.top.fixed.menu');
+      const bottomMenu = document.querySelector('.ui.bottom.fixed.menu');
       const verticalMenuWrappers = document.querySelectorAll('.ui.vertical.menu.menu-wrapper');
       
       if (!verticalMenuWrappers.length) {
@@ -739,10 +740,12 @@
 
       // Get the heights of the top menu
       let topMenuHeight = (topMenu?.offsetHeight) && (topMenu.offsetHeight !== 0) ? topMenu.offsetHeight : 48;
+      let bottomMenuHeight = (bottomMenu?.offsetHeight) && (bottomMenu.offsetHeight !== 0) ? bottomMenu.offsetHeight : 38;
 
       // Set the top margin of the verticalMenuWrapper
       verticalMenuWrappers.forEach(el => {
         el.style.marginTop = `${topMenuHeight}px`;
+        el.style.height = `calc(100vh - ${topMenuHeight}px - ${bottomMenuHeight}px)`;
       });
     }
 
