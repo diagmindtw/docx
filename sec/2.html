@@ -26,252 +26,17 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.5.0/components/table.min.css"
     integrity="sha512-LO7R36eoQTR8mctOTFrAUUGCBiqbouo0mzi5dicyVrW76ECJSI4leeTh3PIX4Hp+09++NA3TVFPRg/0C7viORA=="
     crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.5.0/components/dropdown.min.css" integrity="sha512-tdyzfjYDk2OR9L10jvzzuGUB0Rvl5fyMW/Z8yfbYyyENfuXxtcDtEq7d/PdiA0hzQzXjWwvZasjEp8Joli2tkw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.5.0/components/dropdown.min.css"
+    integrity="sha512-tdyzfjYDk2OR9L10jvzzuGUB0Rvl5fyMW/Z8yfbYyyENfuXxtcDtEq7d/PdiA0hzQzXjWwvZasjEp8Joli2tkw=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
   <!--區域1 反正就叫一堆CSS (區域結束)-->
-  <style>
-    .full-page-loader {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(255, 255, 255, 0.8);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 9999;
-    }
-
-    /* Add cursor pointer style for the landing page button */
-    #button_back_to_landing_page {
-      cursor: pointer;
-    }
-
-    .dt-container {
-      background-color: #F3F3E8;
-      /*這個寬度從.docx來的 595.3*0.96*/
-      width: 571.488pt;
-      border-radius: 10px;
-      padding-top: 1vh;
-      padding-right: 1vw;
-      padding-bottom: 1vh;
-      padding-left: 1vw;
-      margin-top: 1vh;
-      /*margin-right: 1vw;*/
-      margin-bottom: 1vh;
-      /*margin-left: 1vw;*/
-      position: relative;
-      left: -120px;
-    }
-
-    colgroup {
-      display: none;
-    }
-
-    /* 讓標題可以水平滾動 */
-    h1#thePageTitle {
-      max-width: 100%;
-      overflow-x: auto;
-      /* Hide scrollbar for Chrome, Safari and IE */
-      -ms-overflow-style: none;  /* Internet Explorer 10+ */
-      scrollbar-width: none;  /* Firefox */
-    }
-
-    h1#thePageTitle::-webkit-scrollbar {
-        display: none;  /* Safari and Chrome */
-    }
-
-    /*選單收合功能*/
-    /* Menu Wrapper */
-    .menu-wrapper {
-      position: fixed;
-      top: 0;
-      height: 100%;
-      width: auto;
-      z-index: 100;
-      background: none;
-      border: none;
-      overflow: visible;
-    }
-
-    #leftMenuWrapper {
-      transform: translateX(0);
-      transition: transform 0.3s ease;
-    }
-
-    #rightMenuWrapper {
-      transform: translateX(0);
-      transition: transform 0.3s ease;
-    }
-
-    /* 1. Restore Semantic UI Menu Item Styles
-       2. Enable vertically scrolling */
-    #leftMenu, #rightMenu {
-      position: absolute;
-      overflow-y: auto;
-      max-height: 100%;
-      transition: transform 0.3s ease;
-    }
-
-    #leftMenu .item, #rightMenu .item {
-      font-weight: 400;
-      color: #333;
-      border-bottom: 1px solid #ddd;
-    }
-
-    #leftMenu .item {
-      padding: 1em 14px;
-      font-size: 14px;
-    }
-
-    #rightMenu .item {
-      padding: .8em 12px;
-      font-size: 12px;
-    }
-
-    #leftMenu .item:hover, #rightMenu .item:hover {
-      background-color: #f9f9f9;
-      color: #000;
-    }
-
-    #leftMenuToggle, #rightMenuToggle {
-      background-color: #fff;
-      border: 1px solid #ddd;
-      width: 16px;
-      height: 30px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-    }
-
-    #leftMenuToggle {
-      right: -16px;
-      border-top-right-radius: 20%;
-      border-bottom-right-radius: 20%;
-    }
-
-    #rightMenuToggle {
-      left: -16px;
-      border-top-left-radius: 20%;
-      border-bottom-left-radius: 20%;
-    }
-
-    #leftMenuToggle i, #rightMenuToggle i {
-      color: #333;
-      font-size: 16px;
-      top: 50%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin: 0;
-    }
-
-    #leftMenuToggle:hover, #rightMenuToggle:hover {
-      background-color: #e0e0e0;
-      cursor: pointer;
-    }
-
-    /* 
-    區域3 字體 區域起始
-    <weight>: Use a value from 100 to 900
-       <uniquifier>: Use a unique and descriptive class name*/
-    .noto-sans-300 {
-      font-family: "Noto Sans", sans-serif;
-      font-optical-sizing: auto;
-      font-weight: 300;
-      font-style: normal;
-      font-variation-settings:
-        "wdth" 100;
-    }
-
-    /* RWD: 根據螢幕viewport大小決定layout，一共分成四個範圍
-        範圍1: > 1200px (預設layout)
-        範圍2: < 1200px
-        範圍3: < 850px
-        範圍4: < 600px
-        注意: 這些範圍的作用是疊加的；舉例來說，當螢幕寬度小於850px時，會依照 範圍1 > 範圍2 > 範圍3 的順序來套用CSS樣式 */
-
-    /* 範圍2: < 1200px
-        在此範圍內，右選單會自動隱藏起來(可拉開)，筆記分頁標題與內文的字體大小會變小 */
-    @media (max-width: 1200px) {
-      /* 右選單預設收攏 */
-      #rightMenuWrapper {
-        transform: translateX(100%);
-      }
-
-      /* 字體大小調整 */
-      h1#thePageTitle {
-        font-size: 1.8rem;
-      }
-      .docx article div.ui.segment.level-2 p span{
-        font-size: 14pt !important;
-      }
-      .docx article div.ui.segment.level-3 p span{
-        font-size: 12pt !important;
-      }
-    }
-
-    /* 範圍3: < 850px
-        在此範圍內，左選單會自動隱藏起來(可拉開)，筆記分頁標題與內文的字體大小會變小 */
-    @media (max-width: 850px) {
-      /* 調整內文整體layout至合適大小 */
-      #container {
-        display: flex;
-        justify-content: center;
-        align-items: flex-start;
-        margin: 0 auto;
-        padding: 1rem;
-        width: 100%;
-        box-sizing: border-box;
-        overflow-x: auto;
-      }
-      /* 允許內文水平滾動 */
-      .docx {
-        width: auto;
-        max-width: none;
-        margin: 0 auto;
-        overflow-x: auto;
-        display: block;
-        box-sizing: border-box;
-        white-space: nowrap;
-      }
-
-      /* 左選單預設收攏 */
-      #leftMenuWrapper {
-        transform: translateX(-100%);
-      }
-
-      /* 字體大小調整 */
-      h1#thePageTitle {
-        font-size: 1.5rem;
-      }
-      .docx article div.ui.segment.level-2 p span{
-        font-size: 12pt !important;
-      }
-      .docx article div.ui.segment.level-3 p span{
-        font-size: 10pt !important;
-      }
-    }
-
-    /* 範圍4: < 600px
-        在此範圍內，筆記分頁標題的字體大小會變小 */
-    @media (max-width: 600px) {
-      /* 字體大小調整 */
-      h1#thePageTitle {
-        font-size: 1.2rem;
-      }
-    }
-  </style>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
     href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@100..900&family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap"
     rel="stylesheet">
   <!--區域三 字體 區域結束-->
+  <link rel="stylesheet" href="../public/css/index.css">
 </head>
 
 <body>
@@ -282,7 +47,7 @@
     <div class="ui large text loader">Loading</div>
   </div>
   <div id="container" style="display: none;"></div>
-   <!--區域四 主HTML 區域結束            以下的部分不重要，真的不重要 一大段垃圾HTML 就是裝飾品          (區域:裝飾HTML 起始)                                   -->
+  <!--區域四 主HTML 區域結束            以下的部分不重要，真的不重要 一大段垃圾HTML 就是裝飾品          (區域:裝飾HTML 起始)                                   -->
   <div id="myFoot" class="ui  vertical footer segment" style="display: none;">
     <div class="ui center aligned container">
       <div class="ui stackable grid">
@@ -315,8 +80,8 @@
       </div>
     </div>
   </div>
-<!--  (區域:裝飾HTML 結束)       -->
-  
+  <!--  (區域:裝飾HTML 結束)       -->
+
   <script>
     fetch('/docxView/內科.docx')
       .then(response => response.blob())
@@ -411,11 +176,11 @@
     <i class="dropdown icon"></i>
     <div class="menu" tabindex="-1">
       <div class="item" id="DEVgenJSON" onclick="document_getElementById_DEVgenJSON_addEventListener_click_function()">生成(並下載)JSON</div>
-      <div class="divider"></div>
       <div class="item" id="DEVviewJSON" onclick="document_getElementById_DEVviewJSON_addEventListener_click_function()"> (生成並)檢視JSON</div>
       <!--document_getElementById_DEVdownloadMarkdown_addEventListener_click_function-->
-      <div class="divider"></div>
       <div class="item" id="DEVdownloadMarkdown" onclick="document_getElementById_DEVdownloadMarkdown_addEventListener_click_function()"> 下載Markdown</div>
+      <div class="divider"></div>
+      <div class="item" id="domDownloadTableArray" onclick="downloadTableArray(tableArray)"> 下載table陣列</div>
       
     </div>
   </div>
@@ -455,32 +220,32 @@
   <a class="item">Sign-in</a>
 </div>
 `+ hardfont(document.getElementsByClassName('docx-wrapper')[0].innerHTML);//然後這段改字體
-            // 調整選單高度
-            adjustVerticalMenuTop();
+              // 調整選單高度
+              adjustVerticalMenuTop();
 
-            // 讓選單可以收起來
-            const leftMenuWrapper = document.getElementById('leftMenuWrapper');
-            const rightMenuWrapper = document.getElementById('rightMenuWrapper');
-            const leftMenuToggle = document.getElementById('leftMenuToggle');
-            const rightMenuToggle = document.getElementById('rightMenuToggle');
-            setupMenuToggle(leftMenuWrapper, leftMenuToggle, 'left');
-            setupMenuToggle(rightMenuWrapper, rightMenuToggle, 'right');
+              // 讓選單可以收起來
+              const leftMenuWrapper = document.getElementById('leftMenuWrapper');
+              const rightMenuWrapper = document.getElementById('rightMenuWrapper');
+              const leftMenuToggle = document.getElementById('leftMenuToggle');
+              const rightMenuToggle = document.getElementById('rightMenuToggle');
+              setupMenuToggle(leftMenuWrapper, leftMenuToggle, 'left');
+              setupMenuToggle(rightMenuWrapper, rightMenuToggle, 'right');
 
-            // 調整內文位置
-            adjustDocxPosition();
+              // 調整內文位置
+              adjustDocxPosition();
 
-            // 設置點擊內文時收起選單的功能
-            const article = document.querySelector('.docx article');
-            article.addEventListener('click', () => {
-              if (window.innerWidth < 850 && leftMenuWrapper.style?.transform !== 'translateX(-100%)') {
+              // 設置點擊內文時收起選單的功能
+              const article = document.querySelector('.docx article');
+              article.addEventListener('click', () => {
+                if (window.innerWidth < 850 && leftMenuWrapper.style?.transform !== 'translateX(-100%)') {
                   leftMenuToggle.click();
-              }
-              if (window.innerWidth < 1200 && rightMenuWrapper.style?.transform !== 'translateX(100%)') {
+                }
+                if (window.innerWidth < 1200 && rightMenuWrapper.style?.transform !== 'translateX(100%)') {
                   rightMenuToggle.click();
-              }
-            });
+                }
+              });
 
-            docxready = true;
+              docxready = true;
             });
           });
       })
@@ -494,12 +259,17 @@
     crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script src="https://cdn.datatables.net/2.2.2/js/dataTables.min.js" crossorigin="anonymous"
     referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.5.0/components/dropdown.min.js" integrity="sha512-PD2QRjH0s7TFz8Oicpi4UFJBdKP0vFeYpmNPsEoNDHfG3QcGLTs8XUrkXWEQXX2Q0g+1oEwvow27TM2VfPdTxw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="../public/utli/nest2json.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.5.0/components/dropdown.min.js"
+    integrity="sha512-PD2QRjH0s7TFz8Oicpi4UFJBdKP0vFeYpmNPsEoNDHfG3QcGLTs8XUrkXWEQXX2Q0g+1oEwvow27TM2VfPdTxw=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="../public/utli/nest2json.js"></script>
+  <script src="../public/utli/other.js"></script>
+  <script src="../public/postProcess/table.js"></script>
 
-<!--這個分野很重要，以上，docx尚未完成載入，以下，docx完成載入。為甚麼這樣分是，如果原始資料不是docx是html應該就是跑下面就好，不需要分節(上面)的動作-->
-  
+  <!--這個分野很重要，以上，docx尚未完成載入，以下，docx完成載入。為甚麼這樣分是，如果原始資料不是docx是html應該就是跑下面就好，不需要分節(上面)的動作-->
+
   <script>
+    var tableArray = [];
     //這裡直接看網址列#後面的數字決定要載入哪個寫小節
     var currentStage3index = -1;
     $(document).ready(function () {
@@ -525,7 +295,7 @@
               return 9999;
             } else {
               if (parseFloat(p.style.marginLeft)) {
-                p.onml=parseFloat(p.style.marginLeft);
+                p.onml = parseFloat(p.style.marginLeft);
               }
               return parseFloat(p.style.marginLeft) || 0; // Use hard-coded margin or default to 0
             }
@@ -544,7 +314,7 @@
               let currentDiv = null;
 
               Array.from(document.getElementsByClassName('docx')[0].children[0].children).forEach(p => {
-//略過純空白的DOM
+                //略過純空白的DOM
                 if (p.innerText &&
                   p.innerText.trim() !== "" &&
                   p.innerText !== "\n" &&
@@ -553,7 +323,7 @@
                   p.innerText !== "\t" &&
                   !/^[\u3000\u00A0]+$/.test(p.innerText)
                 ) {
-//這裡是個有限狀態機，當遇到的DOM的階層數符合所需時，轉移狀態
+                  //這裡是個有限狀態機，當遇到的DOM的階層數符合所需時，轉移狀態
                   function Tt(int2or3) {
                     if (p.onml && parseFloat(p.onml)) {
 
@@ -583,7 +353,7 @@
                       p.parentNode.insertBefore(currentDiv, p);
                       isOpen = true;
                       currentDiv.appendChild(p);
-                      p.onml=-1;
+                      p.onml = -1;
                     } else if (Tt(3) === 'f') {
                       //存檔關閉
                       if (p.style.display === 'none') {
@@ -592,8 +362,8 @@
                       } else if (!parseFloat(p.onml)) {
                         //寫入
                         currentDiv.appendChild(p);
-                        p.onml=-1;
-                      }else if (parseFloat(p.onml)===-1) {
+                        p.onml = -1;
+                      } else if (parseFloat(p.onml) === -1) {
                         //別動
                       } else {
                         //這裡邏輯糊塗了
@@ -603,7 +373,7 @@
                     } else if (Tt(3) === 's') {
                       //寫入
                       currentDiv.appendChild(p);
-                      p.onml=-1;
+                      p.onml = -1;
                     } else { console.error('must be t or f or s'); }
                   } else {
                     //開新檔案
@@ -614,7 +384,7 @@
                       p.parentNode.insertBefore(currentDiv, p);
                       isOpen = true;
                       currentDiv.appendChild(p);
-                      p.onml=-1;
+                      p.onml = -1;
                     } else if (Tt(2) === 'f') {
                       //維持狀態
                     } else { console.error('must be t or f'); }
@@ -627,8 +397,8 @@
           console.log('No element with class "docx" found.');
         }
 
-//以上的程式碼是在搞巢狀的
-        
+        //以上的程式碼是在搞巢狀的
+
         //!important! give me come color
         const docxElement_main = document.getElementsByClassName('docx')[0];
         docxElement_main.style.backgroundColor = '#f2f2f2';
@@ -636,64 +406,26 @@
         document.getElementsByClassName('docx-wrapper')[0].style.backgroundColor = '#bfbfbf';
         //上面顏色這個應該是調甚麼背景色
 
-//以下的程式碼是在優化table的(反正表格區是AI寫的，直接整段丟AI解釋就好我不註解，https://docs.google.com/document/d/e/2PACX-1vR4b9y8lUdHSrgmrB_bhfBHG_02bZlWq8pYVeQ1wdUushVCDdOrNB2TubMx5mxGZ5yAQgjI3j1s2cC6/pub)
-        
+        //以下的程式碼是在優化table的(反正表格區是AI寫的，直接整段丟AI解釋就好我不註解，https://docs.google.com/document/d/e/2PACX-1vR4b9y8lUdHSrgmrB_bhfBHG_02bZlWq8pYVeQ1wdUushVCDdOrNB2TubMx5mxGZ5yAQgjI3j1s2cC6/pub)
+
         //table
-        function upgradeTables() {
-          document.querySelectorAll("table").forEach(table => {
-            if (getComputedStyle(table).display === "none") return; // Skip hidden tables
-            if (table.querySelector("thead")) return; // Skip if already has thead
-
-            let tbody = table.querySelector("tbody");
-            if (!tbody) return; // Ensure tbody exists
-
-            let firstRow = tbody.querySelector("tr");
-            if (!firstRow) return; // Ensure there's at least one row
-
-            let thead = document.createElement("thead");
-            thead.appendChild(firstRow); // Move the first row to thead
-            table.insertBefore(thead, tbody); // Insert thead before tbody
-          });
-          document.querySelectorAll("td").forEach(r => {
-            //remode hard coded style
-            r.style = '';
-          });
-        }
-        upgradeTables();
+        var tOBJ = upgradeTables();
+        var tableIds = tOBJ.tableIds;
+        tableArray = tOBJ.tableInnerHTMLs;
         DataTable.ext.errMode = function (s, tn, msg) {
-          console.log(msg, tn);
+          //這東西應該是可以不用啦，錯得很安全
+          //console.log(msg, tn);
         };
-        // Get all table elements within the 'docx' element
-        let tables = docxElement.getElementsByTagName('table');
-
-        // Function to generate a random string
-        function generateRandomString(length) {
-          let characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-          let result = '';
-          for (let i = 0; i < length; i++) {
-            result += characters.charAt(Math.floor(Math.random() * characters.length));
-          }
-          return result;
-        }
-
-        // Array to store the generated IDs
-        let tableIds = [];
-
-        // Assign a random ID to each table and store the ID in the array
-        for (let i = 0; i < tables.length; i++) {
-          let randomId = generateRandomString(10);
-          tables[i].id = randomId;
-          tables[i].classList.add('ui', 'celled', 'table', 'striped');
-          tableIds.push(randomId);
-        }
 
         // Initialize a DataTable for each table using the generated IDs
         for (let i = 0; i < tableIds.length; i++) {
           let queryString = `#${tableIds[i]}`;
+          //console.log(document.getElementById(tableIds[i]).innerHTML);
           try {
-            let dataTable = new DataTable(queryString);            
+            let dataTable = new DataTable(queryString);
           } catch (error) {
-            console.log(error);
+            //這東西應該是可以不用啦，錯得很安全
+            //console.log(error);
           }
         }
 
@@ -725,7 +457,7 @@
           throw new Error('Network response was not ok');
         }
         const data = await response.json();
-        return data.categories.map(category => category.display==='none'?'': `<a class="item" href="${category.url}">${category.name}</a>`).join('\n');
+        return data.categories.map(category => category.display === 'none' ? '' : `<a class="item" href="${category.url}">${category.name}</a>`).join('\n');
       } catch (error) {
         console.error('There has been a problem with your fetch operation:', error);
       }
@@ -735,7 +467,7 @@
       // 自動調整選單高度(top)
       const topMenu = document.querySelector('.ui.top.fixed.menu');
       const verticalMenuWrappers = document.querySelectorAll('.ui.vertical.menu.menu-wrapper');
-      
+
       if (!verticalMenuWrappers.length) {
         console.error('No vertical menu wrappers found: ', verticalMenuWrappers);
         return;
@@ -798,8 +530,8 @@
         docxContainer.style.marginLeft = '0px';
         return;
       }
-      
-      if (window.innerWidth < 1200){
+
+      if (window.innerWidth < 1200) {
         // 只在viewport在850~1200才調整內文位置
         if (rightMenuWrapper.style?.transform !== 'translateX(0)' && leftMenuWrapper.style?.transform !== 'translateX(-100%)') {
           let leftMenuWidth = leftMenuWrapper.style.transform === 'translateX(-100%)' ? 0 : leftMenuWrapper.offsetWidth;
@@ -822,4 +554,5 @@
     //區域[函式](區域結束)
   </script>
 </body>
+
 </html>
