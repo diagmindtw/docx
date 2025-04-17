@@ -64,6 +64,10 @@
       left: -120px;
     }
 
+    colgroup {
+      display: none;
+    }
+
     /* 讓標題可以水平滾動 */
     h1#thePageTitle {
       max-width: 100%;
@@ -687,7 +691,7 @@
         for (let i = 0; i < tableIds.length; i++) {
           let queryString = `#${tableIds[i]}`;
           try {
-            let dataTable = new DataTable(queryString);
+            let dataTable = new DataTable(queryString);            
           } catch (error) {
             console.log(error);
           }
