@@ -1,0 +1,36 @@
+name: Sync OneNote to gh-pages
+
+on:
+  schedule:
+    - cron: '0 3 * * *' # 每天凌晨3點 UTC
+  workflow_dispatch: # 手動觸發
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js (Latest)
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'latest'
+
+      - name: Install latest onenote2md globally
+        run: npm install -g onenote2md
+
+      - name: Run onenote2md
+        run: |
+          onenote2md -u "https://diagmindtw.com/rawdocx/serve-docx.php?file=" \
+                     -b "https://diagmindtw.com/kcms0.php#edit" \
+                     -s remote
+
+      - name: Deploy ./output to gh-pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./output
+          publish_branch: gh-pages
+          force_orphan: true # 如果你希望每次部署都清空舊版歷史，可以啟用這行（可選）
