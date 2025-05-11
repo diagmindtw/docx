@@ -27,10 +27,12 @@ jobs:
                      -b "https://diagmindtw.com/kcms0.php#edit" \
                      -s remote
 
+      - name: Add CNAME for GitHub Pages
+        run: echo "docx.diagmindtw.com" > ./output/CNAME
+
       - name: Deploy ./output to gh-pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./output
           publish_branch: gh-pages
-          force_orphan: true # 如果你希望每次部署都清空舊版歷史，可以啟用這行（可選）
