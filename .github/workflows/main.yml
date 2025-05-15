@@ -45,6 +45,33 @@ jobs:
           </html>
           EOF
 
+      - name: Add redirect pages for each section
+        run: |
+          mkdir -p ./output/sec
+          declare -A redirects=(
+            ["2"]="InternalMedicineDepartment"
+            ["3"]="SurgicalDepartment"
+            ["4"]="ChildDepartment"
+            ["5"]="ObstetricsGynecologyDepartment"
+            ["6"]="Appointments"
+          )
+
+          for key in "${!redirects[@]}"; do
+            cat <<EOF > ./output/sec/${key}.html
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <meta http-equiv="refresh" content="0; url=https://docx.diagmindtw.com/${redirects[$key]}/index.html" />
+              <title>Redirecting...</title>
+            </head>
+            <body>
+              <p>Redirecting to <a href="https://docx.diagmindtw.com/${redirects[$key]}/index.html">https://docx.diagmindtw.com/${redirects[$key]}/index.html</a></p>
+            </body>
+            </html>
+            EOF
+          done
+
+
       - name: Deploy ./output to gh-pages
         uses: peaceiris/actions-gh-pages@v3
         with:
