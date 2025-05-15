@@ -33,17 +33,17 @@ jobs:
       - name: Add index.html redirect page
         run: |
           cat <<EOF > ./output/index.html
-<!DOCTYPE html>
-<html>
-<head>
-  <meta http-equiv="refresh" content="0; url=https://docx.diagmindtw.com/ObstetricsGynecologyDepartment/index.html#2" />
-  <title>Redirecting...</title>
-</head>
-<body>
-  <p>Redirecting to <a href="https://docx.diagmindtw.com/ObstetricsGynecologyDepartment/index.html#2">https://docx.diagmindtw.com/ObstetricsGynecologyDepartment/index.html#2</a></p>
-</body>
-</html>
-EOF
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <meta http-equiv="refresh" content="0; url=https://docx.diagmindtw.com/ObstetricsGynecologyDepartment/index.html#2" />
+            <title>Redirecting...</title>
+          </head>
+          <body>
+            <p>Redirecting to <a href="https://docx.diagmindtw.com/ObstetricsGynecologyDepartment/index.html#2">https://docx.diagmindtw.com/ObstetricsGynecologyDepartment/index.html#2</a></p>
+          </body>
+          </html>
+          EOF
 
       - name: Add redirect pages for each section
         run: |
@@ -58,17 +58,17 @@ EOF
 
           for key in "${!redirects[@]}"; do
             cat <<EOF > ./output/sec/${key}.html
-<!DOCTYPE html>
-<html>
-<head>
-  <meta http-equiv="refresh" content="0; url=https://docx.diagmindtw.com/${redirects[$key]}/index.html" />
-  <title>Redirecting...</title>
-</head>
-<body>
-  <p>Redirecting to <a href="https://docx.diagmindtw.com/${redirects[$key]}/index.html">https://docx.diagmindtw.com/${redirects[$key]}/index.html</a></p>
-</body>
-</html>
-EOF
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <meta http-equiv="refresh" content="0; url=https://docx.diagmindtw.com/${redirects[$key]}/index.html" />
+              <title>Redirecting...</title>
+            </head>
+            <body>
+              <p>Redirecting to <a href="https://docx.diagmindtw.com/${redirects[$key]}/index.html">https://docx.diagmindtw.com/${redirects[$key]}/index.html</a></p>
+            </body>
+            </html>
+            EOF
           done
 
       - name: Deploy ./output to gh-pages
