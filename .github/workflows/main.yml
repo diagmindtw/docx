@@ -31,19 +31,7 @@ jobs:
         run: echo "docx.diagmindtw.com" > ./output/CNAME
 
       - name: Add index.html redirect page
-        run: |
-          cat <<EOF > ./output/index.html
-          <!DOCTYPE html>
-          <html>
-          <head>
-            <meta http-equiv="refresh" content="0; url=https://docx.diagmindtw.com/ObstetricsGynecologyDepartment/index.html#2" />
-            <title>Redirecting...</title>
-          </head>
-          <body>
-            <p>Redirecting to <a href="https://docx.diagmindtw.com/ObstetricsGynecologyDepartment/index.html#2">https://docx.diagmindtw.com/ObstetricsGynecologyDepartment/index.html#2</a></p>
-          </body>
-          </html>
-          EOF
+        run: cp ./templates/index.html ./output/index.html
 
       - name: Add redirect pages for each section
         run: |
@@ -57,18 +45,7 @@ jobs:
           )
 
           for key in "${!redirects[@]}"; do
-            cat <<EOF > ./output/sec/${key}.html
-            <!DOCTYPE html>
-            <html>
-            <head>
-              <meta http-equiv="refresh" content="0; url=https://docx.diagmindtw.com/${redirects[$key]}/index.html" />
-              <title>Redirecting...</title>
-            </head>
-            <body>
-              <p>Redirecting to <a href="https://docx.diagmindtw.com/${redirects[$key]}/index.html">https://docx.diagmindtw.com/${redirects[$key]}/index.html</a></p>
-            </body>
-            </html>
-            EOF
+            sed "s/{{DEPT}}/${redirects[$key]}/g" ./templates/redirect.html > ./output/sec/${key}.html
           done
 
       - name: Deploy ./output to gh-pages
